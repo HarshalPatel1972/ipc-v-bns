@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Anchor, Skull, Search, Play, ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Anchor, Skull, Search, Play } from 'lucide-react';
+
+/* Components */
+import Navbar from './components/Navbar';
+import SimulatorSection from './components/SimulatorSection';
+import AnalyticsSection from './components/AnalyticsSection';
+import MethodologySection from './components/MethodologySection';
+import FooterSection from './components/FooterSection';
 
 const DEMO_DATA = [
   { query: "Punishment for Murder?", model: "GPT-4", output: "Section 302 (IPC)", status: "Hallucination" },
@@ -8,27 +15,15 @@ const DEMO_DATA = [
   { query: "Electronic Evidence Admissibility", model: "Llama 3", output: "Section 65B (IEA)", status: "Hallucination" }
 ];
 
-import SimulatorSection from './components/SimulatorSection';
-import AnalyticsSection from './components/AnalyticsSection';
-
 function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500/30">
-      {/* Navbar (Minimal) */}
-      <nav className="fixed top-0 w-full z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-mono text-cyan-400 font-bold tracking-wider">
-            <span className="text-xl">INDOLEGAL-100</span>
-            <div className="h-2 w-2 bg-cyan-400 animate-pulse rounded-full" />
-          </div>
-          <button className="text-sm font-mono text-slate-400 hover:text-cyan-400 transition-colors">
-            [ACCESS_DATASET]
-          </button>
-        </div>
-      </nav>
+      
+      {/* 1. Sticky Navigation */}
+      <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 overflow-hidden">
+      {/* 2. Hero Section */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 overflow-hidden" id="home">
         {/* Background Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
         
@@ -87,7 +82,7 @@ function App() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => document.getElementById('simulator').scrollIntoView({ behavior: 'smooth' })} // added scroll
+            onClick={() => document.getElementById('simulator').scrollIntoView({ behavior: 'smooth' })}
             className="group relative px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-lg rounded-sm overflow-hidden transition-all shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_40px_rgba(6,182,212,0.7)]"
           >
             <div className="absolute inset-0 w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
@@ -98,14 +93,8 @@ function App() {
           </motion.button>
         </div>
       </section>
-      
-      {/* Simulator Section */}
-      <SimulatorSection />
-      
-      {/* Analytics Section */}
-      <AnalyticsSection />
 
-      {/* Problem Section */}
+      {/* 3. Problem Section (Context) */}
       <section className="py-24 bg-slate-900 relative">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row gap-4 items-end mb-12 border-b border-slate-700 pb-4">
@@ -117,91 +106,40 @@ function App() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Card 1 */}
             <div className="group p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 transition-colors rounded-lg relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                 <Anchor size={80} />
-               </div>
-               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform">
-                 <Anchor size={24} />
-               </div>
+               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Anchor size={80} /></div>
+               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform"><Anchor size={24} /></div>
                <h3 className="text-xl font-bold text-slate-200 mb-3">Parametric Inertia</h3>
-               <p className="text-slate-400 text-sm leading-relaxed">
-                 Models cling to old IPC data embedded deep in their weights, refusing to update to the new BNS framework.
-               </p>
+               <p className="text-slate-400 text-sm leading-relaxed">Models cling to old IPC data embedded deep in their weights, refusing to update to the new BNS framework.</p>
             </div>
-
-            {/* Card 2 */}
             <div className="group p-6 bg-slate-950 border border-slate-800 hover:border-red-500/50 transition-colors rounded-lg relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                 <Skull size={80} />
-               </div>
-               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-red-500 mb-6 group-hover:scale-110 transition-transform">
-                 <Skull size={24} />
-               </div>
+               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Skull size={80} /></div>
+               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-red-500 mb-6 group-hover:scale-110 transition-transform"><Skull size={24} /></div>
                <h3 className="text-xl font-bold text-slate-200 mb-3">The Zombie Error</h3>
-               <p className="text-slate-400 text-sm leading-relaxed">
-                 Citing dead laws as active provisions. The model hallucinates that repealed acts are still enforceable.
-               </p>
+               <p className="text-slate-400 text-sm leading-relaxed">Citing dead laws as active provisions. The model hallucinates that repealed acts are still enforceable.</p>
             </div>
-
-            {/* Card 3 */}
             <div className="group p-6 bg-slate-950 border border-slate-800 hover:border-purple-500/50 transition-colors rounded-lg relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                 <Search size={80} />
-               </div>
-               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform">
-                 <Search size={24} />
-               </div>
+               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Search size={80} /></div>
+               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform"><Search size={24} /></div>
                <h3 className="text-xl font-bold text-slate-200 mb-3">RAG Confusion</h3>
-               <p className="text-slate-400 text-sm leading-relaxed">
-                 Retrieval Augmented Generation fails to filter legacy noise from the open web, polluting the context window.
-               </p>
+               <p className="text-slate-400 text-sm leading-relaxed">Retrieval Augmented Generation fails to filter legacy noise from the open web, polluting the context window.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Demo Data Section */}
-      <section className="py-24 bg-slate-950 border-t border-slate-800">
-        <div className="container mx-auto px-6">
-           <div className="mb-8 font-mono text-sm text-cyan-500 animate-pulse">
-             $ ACCESSING_LOGS...
-           </div>
-           
-           <div className="overflow-x-auto">
-             <table className="w-full text-left font-mono text-sm">
-               <thead>
-                 <tr className="border-b border-slate-800 text-slate-500">
-                   <th className="py-4 px-4">QUERY</th>
-                   <th className="py-4 px-4">MODEL</th>
-                   <th className="py-4 px-4">OUTPUT</th>
-                   <th className="py-4 px-4">STATUS</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {DEMO_DATA.map((item, index) => (
-                   <tr key={index} className="border-b border-slate-800/50 hover:bg-slate-900/50 transition-colors">
-                     <td className="py-4 px-4 text-slate-300">{item.query}</td>
-                     <td className="py-4 px-4 text-slate-400">{item.model}</td>
-                     <td className="py-4 px-4 text-red-300">{item.output}</td>
-                     <td className="py-4 px-4">
-                       <span className="px-2 py-1 bg-red-500/10 text-red-500 rounded text-xs border border-red-500/20">
-                         {item.status}
-                       </span>
-                     </td>
-                   </tr>
-                 ))}
-               </tbody>
-             </table>
-           </div>
-        </div>
-      </section>
+      {/* 4. Simulator Section (Live Demo) */}
+      <SimulatorSection />
+
+      {/* 5. Methodology Section (The Bridge) */}
+      <MethodologySection />
       
-      {/* Footer */}
-      <footer className="py-8 text-center text-slate-600 text-sm font-mono border-t border-slate-800">
-        IndoLegal-100_Research_Module // v1.0.0
-      </footer>
+      {/* 6. Analytics Section (Scientific Data) */}
+      <AnalyticsSection />
+
+      {/* 7. Footer & Team */}
+      <FooterSection />
+
     </div>
   );
 }
