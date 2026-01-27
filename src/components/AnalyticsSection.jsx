@@ -25,15 +25,35 @@ const AnalyticsSection = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="md:col-span-2 md:row-span-2 bg-slate-900/50 border border-slate-800 rounded-xl p-6 relative overflow-hidden backdrop-blur-sm"
+            className="md:col-span-2 md:row-span-2 bg-slate-900/50 border border-slate-800 rounded-xl p-6 relative overflow-hidden backdrop-blur-sm flex flex-col"
           >
              <h3 className="flex items-center gap-2 text-slate-300 font-bold mb-6">
                <BarChart className="text-cyan-500" size={20} />
                Hallucination Rate by Model
              </h3>
-             {/* Chart Placeholder */}
-             <div className="flex items-end justify-around h-64 md:h-80 w-full pb-8 border-b border-slate-700/50">
-                <div className="text-slate-500 text-sm">Loading Visualization...</div>
+             
+             {/* Custom Bar Chart */}
+             <div className="flex-1 flex items-end justify-around pb-8 border-b border-slate-700/50 relative">
+                {[
+                  { label: 'GPT-4', height: '15%', color: 'bg-green-500', error: '15%' },
+                  { label: 'Llama-3', height: '45%', color: 'bg-red-500', error: '45%' },
+                  { label: 'Krutrim', height: '25%', color: 'bg-yellow-500', error: '25%' },
+                ].map((bar, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-2 w-1/4 h-full justify-end group">
+                    <div className="text-xs text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {bar.error} Error
+                    </div>
+                    <motion.div 
+                      initial={{ height: 0 }}
+                      whileInView={{ height: bar.height }}
+                      transition={{ duration: 1, delay: 0.2 + (idx * 0.2), ease: "circOut" }}
+                      className={`w-full max-w-[60px] ${bar.color} rounded-t-md opacity-80 hover:opacity-100 transition-opacity relative`}
+                    >
+                      <div className="absolute top-0 left-0 w-full h-1 bg-white/30" />
+                    </motion.div>
+                    <span className="font-mono text-xs text-slate-400 font-bold">{bar.label}</span>
+                  </div>
+                ))}
              </div>
           </motion.div>
 
@@ -49,9 +69,23 @@ const AnalyticsSection = () => {
                <PieChart className="text-red-500" size={16} />
                Error Taxonomy
              </h3>
-             {/* Chart Placeholder */}
-             <div className="w-32 h-32 rounded-full border-4 border-slate-700 flex items-center justify-center text-slate-600 text-xs">
-               Load
+             
+             {/* CSS Conic Gradient Donut Chart */}
+             <div className="relative w-32 h-32 rounded-full flex items-center justify-center"
+               style={{
+                 background: "conic-gradient(#ef4444 0% 60%, #f97316 60% 90%, #64748b 90% 100%)"
+               }}
+             >
+               <div className="absolute inset-2 bg-slate-900 rounded-full flex flex-col items-center justify-center z-10">
+                 <span className="text-2xl font-bold text-slate-200">60%</span>
+                 <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Zombie</span>
+               </div>
+             </div>
+             
+             {/* Legend */}
+             <div className="mt-4 flex gap-2 text-[10px] text-slate-500">
+               <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /> Zombie</span>
+               <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500" /> Draft</span>
              </div>
           </motion.div>
 
