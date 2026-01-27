@@ -9,6 +9,7 @@ const DEMO_DATA = [
 ];
 
 import SimulatorSection from './components/SimulatorSection';
+import AnalyticsSection from './components/AnalyticsSection';
 
 function App() {
   return (
@@ -100,7 +101,9 @@ function App() {
       
       {/* Simulator Section */}
       <SimulatorSection />
-
+      
+      {/* Analytics Section */}
+      <AnalyticsSection />
 
       {/* Problem Section */}
       <section className="py-24 bg-slate-900 relative">
