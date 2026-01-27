@@ -2,7 +2,44 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, PieChart, Activity, AlertTriangle, Database, CheckCircle, Smartphone } from 'lucide-react';
 
-const AnalyticsSection = () => {
+  /* Live Log Logic */
+  const [logs, setLogs] = useState([]);
+  const logContainerRef = useRef(null);
+
+  useEffect(() => {
+    const logTypes = [
+      { msg: "Analysing Q{id}... ERROR DETECTED (Type: IPC_Zombie)", type: "fail" },
+      { msg: "Analysing Q{id}... VERIFIED (Type: BNS_Compliant)", type: "pass" },
+      { msg: "Analysing Q{id}... ERROR DETECTED (Type: Hallucination)", type: "fail" },
+      { msg: "Analysing Q{id}... VERIFIED (Type: BNS_Compliant)", type: "pass" },
+      { msg: "System Heartbeat... OK", type: "neutral" }
+    ];
+
+    let count = 42;
+    const interval = setInterval(() => {
+      count++;
+      const randomLog = logTypes[Math.floor(Math.random() * logTypes.length)];
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      const msg = randomLog.msg.replace("{id}", count);
+      
+      setLogs(prev => {
+        const newLogs = [...prev, { time, msg, type: randomLog.type }];
+        if (newLogs.length > 20) newLogs.shift(); // Keep last 20
+        return newLogs;
+      });
+
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-scroll to bottom of logs
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [logs]);
+
   return (
     <section className="py-24 bg-slate-950 relative border-t border-slate-900" id="analytics">
       <div className="container mx-auto px-6">
@@ -101,21 +138,25 @@ const AnalyticsSection = () => {
                <Activity size={14} className="animate-pulse" />
                LIVE_ADJUDICATION_LOG
              </div>
-             <div className="flex-1 overflow-hidden relative">
-               <div className="text-slate-500 italic">Initializing stream...</div>
+             <div ref={logContainerRef} className="flex-1 overflow-y-auto space-y-2 relative no-scrollbar">
+               {logs.map((log, i) => (
+                 <motion.div 
+                   key={i} 
+                   initial={{ opacity: 0, x: -10 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   className={`border-l-2 pl-2 ${
+                     log.type === 'fail' ? 'border-red-500 text-red-400' : 
+                     log.type === 'pass' ? 'border-green-500 text-green-400' : 'border-slate-500 text-slate-500'
+                   }`}
+                 >
+                   <span className="text-slate-600">[{log.time}]</span> JUDGE_BOT: {log.msg}
+                   {log.type === 'fail' && <span className="ml-1 text-red-500">Score: 0/3</span>}
+                 </motion.div>
+               ))}
+               <div className="animate-pulse text-cyan-500">_</div>
              </div>
           </motion.div>
 
-           {/* Placeholder for future box if needed, or Box 2 only took 1 row, leaving a slot. 
-               The prompt asks for Box 2 to be Pie Chart. 
-               Layout: Box 1 (2x2), Box 3 (1x2). That leaves 1 col left.
-               If Box 2 is 1x1, there is an empty 1x1 slot below it. 
-               I will make Box 2 1x2 to fill the gap or add a stat card.
-               Let's make Box 2 span 1 col, 2 rows for now to simplify, or add a Stat card.
-               Re-reading prompt: "Bento Grid". 
-               Let's stick to prompt box definitions. 
-               I'll add a "Total Queries" stat card to fill the grid.
-           */}
            <motion.div 
              initial={{ opacity: 0, scale: 0.9 }}
              whileInView={{ opacity: 1, scale: 1 }}
