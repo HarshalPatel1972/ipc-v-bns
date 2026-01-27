@@ -63,7 +63,7 @@ const MethodologySection = () => {
                >
                  {/* Step Number Badge */}
                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-950 px-3 py-1 border border-slate-800 rounded-full text-xs font-mono text-slate-500">
-                   STEP {img_number: index + 1}
+                   STEP {index + 1}
                  </div>
 
                  <div className={`w-16 h-16 rounded-2xl ${step.bg} ${step.color} flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg`}>

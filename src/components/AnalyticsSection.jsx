@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, PieChart, Activity, AlertTriangle, Database, CheckCircle, Smartphone } from 'lucide-react';
 
+const AnalyticsSection = () => {
   /* Live Log Logic */
   const [logs, setLogs] = useState([]);
   const logContainerRef = useRef(null);
