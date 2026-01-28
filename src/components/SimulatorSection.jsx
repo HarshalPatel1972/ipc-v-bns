@@ -285,6 +285,18 @@ const TeachingView = ({ model, scenario, onResume }) => {
 };
 
 
+const BATCH_QS = [
+  { q: "Punishment for Snatching?", src: "BNS Sec 304" },
+  { q: "Def. of Organized Crime?", src: "BNS Sec 111" },
+  { q: "Community Service rules?", src: "BNS Sec 4(f)" },
+  { q: "Electronic Records?", src: "BSA Sec 61" },
+  { q: "Mob Lynching penalty?", src: "BNS Sec 103(2)" },
+  { q: "Sedition repealed?", src: "BNS (Absent)" },
+  { q: "Hit & Run fine?", src: "BNS Sec 106(2)" },
+  { q: "Fake News detection?", src: "IT Act + BNS" },
+  { q: "Marriage by deceit?", src: "BNS Sec 69" }
+];
+
 /* --- 4. MAIN CONTROLLER --- */
 const SimulatorSection = () => {
   const [status, setStatus] = useState('IDLE'); // IDLE, RUNNING, INTERRUPT, COMPLETED
@@ -304,6 +316,9 @@ const SimulatorSection = () => {
   // Main Loop
   useEffect(() => {
     if (status !== 'RUNNING') return;
+    
+    // Safety check for model
+    if (!currentModel) return;
 
     // Reset for new model
     if (progress === 0 && logs.length === 0) {
@@ -335,10 +350,15 @@ const SimulatorSection = () => {
            return 100;
         }
 
-        // Add random log
-        if (Math.random() > 0.7) {
+        // Add detailed log (No Blackbox)
+        if (Math.random() > 0.6) {
+           const randQ = BATCH_QS[Math.floor(Math.random() * BATCH_QS.length)];
            const batchId = Math.floor(Math.random() * 800) + 100;
-           setLogs(prev => [...prev, `[Batch-${batchId}] Processing Q${Math.floor(Math.random()*100)}... OK`].slice(-8));
+           
+           // Format: Q: [Question] | Source: [Section] | Verdict: [PASS]
+           const logMsg = `Q: "${randQ.q}" | Src: ${randQ.src} | VERIFIED`;
+           
+           setLogs(prev => [...prev, logMsg].slice(-8));
         }
 
         return p + (currentModel.type === 'batch_only' ? 2 : 1); // Fast vs Normal speed
@@ -346,7 +366,7 @@ const SimulatorSection = () => {
     }, 50);
 
     return () => clearInterval(interval);
-  }, [status, modelIndex, progress]);
+  }, [status, modelIndex, progress, currentModel]); // Dependency on currentModel
 
   // Handler for Start
   const startBenchmark = () => {
@@ -361,6 +381,9 @@ const SimulatorSection = () => {
     setStatus('RUNNING');
     setProgress(51); // Push past the interrupt point
   };
+  
+  // Guard Clauses for Render
+  if (!currentModel && status !== 'COMPLETED' && status !== 'IDLE') return null;
 
   return (
     <section className="py-24 bg-slate-950 relative border-t border-slate-900 min-h-[800px] flex flex-col justify-center" id="simulator">
@@ -418,7 +441,7 @@ const SimulatorSection = () => {
                  </motion.div>
               )}
 
-              {(status === 'RUNNING' || status === 'COMPLETED') && (
+              {(status === 'RUNNING' || status === 'COMPLETED') && currentModel && (
                  <motion.div key="batch" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <BatchConsole currentModel={currentModel} progress={progress} logs={logs} />
                  </motion.div>
