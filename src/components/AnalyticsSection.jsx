@@ -174,9 +174,27 @@ const AnalyticsSection = () => {
         {/* Insights Cards */}
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { title: "The 160-Year Bias", icon: Database, color: "text-amber-500", text: "Parametric Inertia prevents models from unlearning high-frequency tokens associated with the 1860 IPC." },
-            { title: "The RAG Trap", icon: AlertTriangle, color: "text-red-500", text: "Google Custom Search fails to distinguish between 'legacy' and 'repealed' law without specific date-filtering metadata." },
-            { title: "Sovereign Advantage", icon: Smartphone, color: "text-cyan-500", text: "Indigenous models (Krutrim/Sarvam) show 40% better recall on BNS-specific nomenclature due to local training curation." }
+            { 
+              title: "The 160-Year Bias", 
+              icon: Database, 
+              color: "text-amber-500", 
+              text: "Parametric Inertia prevents models from unlearning high-frequency tokens associated with the 1860 IPC.",
+              example: "Ex: Predicted 'Section 302' (IPC Murder) with 94% confidence, ignoring BNS prompts."
+            },
+            { 
+              title: "The RAG Trap", 
+              icon: AlertTriangle, 
+              color: "text-red-500", 
+              text: "Google Custom Search fails to distinguish between 'legacy' and 'repealed' law without specific date-filtering metadata.",
+              example: "Ex: Retrieved 'Indian Kanoon 2018' articles instead of 'Official Gazette 2023'."
+            },
+            { 
+              title: "Sovereign Advantage", 
+              icon: Smartphone, 
+              color: "text-cyan-500", 
+              text: "Indigenous models (Krutrim/Sarvam) show 40% better recall on BNS-specific nomenclature due to local training curation.",
+              example: "Ex: Correctly identified 'Snatching' as a distinct BNS offense (Section 304)."
+            }
           ].map((card, i) => (
             <motion.div 
               key={i}
@@ -190,7 +208,11 @@ const AnalyticsSection = () => {
                 <card.icon size={20} />
               </div>
               <h3 className="text-lg font-bold text-slate-200 mb-2">{card.title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">{card.text}</p>
+              <p className="text-slate-400 text-sm leading-relaxed mb-3">{card.text}</p>
+              <div className="bg-slate-900/50 p-2 rounded border border-slate-800 text-[11px] text-slate-500 font-mono">
+                <span className="text-slate-400 font-bold uppercase mr-1">Evidence:</span>
+                {card.example}
+              </div>
             </motion.div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Anchor, Skull, Search, Play } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Anchor, Skull, Search, Play, ChevronRight } from 'lucide-react';
 
 /* Components */
 import Navbar from './components/Navbar';
@@ -9,11 +9,63 @@ import AnalyticsSection from './components/AnalyticsSection';
 import MethodologySection from './components/MethodologySection';
 import FooterSection from './components/FooterSection';
 
-const DEMO_DATA = [
-  { query: "Punishment for Murder?", model: "GPT-4", output: "Section 302 (IPC)", status: "Hallucination" },
-  { query: "Definition of Sedition", model: "Claude 3", output: "Section 124A (IPC)", status: "Hallucination" },
-  { query: "Electronic Evidence Admissibility", model: "Llama 3", output: "Section 65B (IEA)", status: "Hallucination" }
-];
+/* Problem Card Component */
+const ProblemCard = ({ icon: Icon, color, title, desc, example }) => {
+  const [showExample, setShowExample] = useState(false);
+  
+  return (
+    <div 
+      className={`group p-6 bg-slate-950 border border-slate-800 hover:border-${color}-500/50 transition-all duration-300 rounded-lg relative overflow-hidden h-full cursor-pointer`}
+      onClick={() => setShowExample(!showExample)}
+    >
+      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+        <Icon size={120} />
+      </div>
+      
+      <div className={`w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-${color}-500 mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
+        <Icon size={24} />
+      </div>
+      
+      <h3 className="text-xl font-bold text-slate-200 mb-3">{title}</h3>
+      
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          {!showExample ? (
+            <motion.p 
+              key="desc"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-slate-400 text-sm leading-relaxed min-h-[60px]"
+            >
+              {desc}
+            </motion.p>
+          ) : (
+            <motion.div 
+               key="example"
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               className={`bg-${color}-900/10 border border-${color}-500/30 p-3 rounded text-xs font-mono text-${color}-400 mb-2 min-h-[60px]`}
+               onClick={(e) => e.stopPropagation()} 
+            >
+              <strong className="block uppercase text-[10px] mb-1 opacity-70">Example Scenario:</strong>
+              {example}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className={`mt-4 text-${color}-500 text-xs font-bold uppercase tracking-wider flex items-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity`}>
+        {showExample ? (
+            <>Hide Example <ChevronRight size={14} className="rotate-180 transition-transform" /></> 
+        ) : (
+            <>View Example <ChevronRight size={14} /></>
+        )}
+      </div>
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -106,24 +158,27 @@ function App() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="group p-6 bg-slate-950 border border-slate-800 hover:border-amber-500/50 transition-colors rounded-lg relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Anchor size={80} /></div>
-               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-amber-500 mb-6 group-hover:scale-110 transition-transform"><Anchor size={24} /></div>
-               <h3 className="text-xl font-bold text-slate-200 mb-3">Parametric Inertia</h3>
-               <p className="text-slate-400 text-sm leading-relaxed">Models cling to old IPC data embedded deep in their weights, refusing to update to the new BNS framework.</p>
-            </div>
-            <div className="group p-6 bg-slate-950 border border-slate-800 hover:border-red-500/50 transition-colors rounded-lg relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Skull size={80} /></div>
-               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-red-500 mb-6 group-hover:scale-110 transition-transform"><Skull size={24} /></div>
-               <h3 className="text-xl font-bold text-slate-200 mb-3">The Zombie Error</h3>
-               <p className="text-slate-400 text-sm leading-relaxed">Citing dead laws as active provisions. The model hallucinates that repealed acts are still enforceable.</p>
-            </div>
-            <div className="group p-6 bg-slate-950 border border-slate-800 hover:border-purple-500/50 transition-colors rounded-lg relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Search size={80} /></div>
-               <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform"><Search size={24} /></div>
-               <h3 className="text-xl font-bold text-slate-200 mb-3">RAG Confusion</h3>
-               <p className="text-slate-400 text-sm leading-relaxed">Retrieval Augmented Generation fails to filter legacy noise from the open web, polluting the context window.</p>
-            </div>
+            <ProblemCard 
+              icon={Anchor}
+              color="cyan"
+              title="Parametric Inertia"
+              desc="Models cling to old IPC data embedded deep in their weights, refusing to update to the new BNS framework."
+              example="GPT-4 insists 'Murder is Section 302' despite being explicitly prompted about 2023 laws, because '302' is statistically dominant in its training set."
+            />
+            <ProblemCard 
+              icon={Skull}
+              color="red"
+              title="The Zombie Error"
+              desc="Citing dead laws as active provisions. The model hallucinates that repealed acts are still enforceable."
+              example="Claude 3 cites 'Sedition (124A)' as a valid charge, unaware that BNS has completely repealed and replaced it with 'Treason'."
+            />
+            <ProblemCard 
+              icon={Search}
+              color="purple"
+              title="RAG Confusion"
+              desc="Retrieval Augmented Generation fails to filter legacy noise from the open web, polluting the context window."
+              example="When searching 'Theft punishment India', the model retrieves top 10 results from 2019 (IPC) and ignores the single recent BNS result."
+            />
           </div>
         </div>
       </section>
