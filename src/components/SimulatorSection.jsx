@@ -168,34 +168,52 @@ const SimulatorSection = () => {
   }
 
   /* --- ANIMATION SEQUENCER --- */
+  const intervalsRef = useRef([]);
+
+  const cleanupIntervals = () => {
+    intervalsRef.current.forEach(clearInterval);
+    intervalsRef.current = [];
+  };
+
+  useEffect(() => {
+    return () => cleanupIntervals();
+  }, []);
+
   const runSimulation = () => {
+    cleanupIntervals(); // Stop any pending animations
     setActiveStep(1);
     setAiOutput("");
     setVisibleLogs([]);
 
     // Step 1: Ground Truth (1.5s)
-    setTimeout(() => {
+    const step1Timeout = setTimeout(() => {
       setActiveStep(2);
       
       // Step 2: AI Generation (Typewriter)
       let i = 0;
       const typeInterval = setInterval(() => {
+        if (!scenario || !scenario.ai_response) return; // Safety check
         setAiOutput(scenario.ai_response.substring(0, i + 1));
         i++;
         if (i >= scenario.ai_response.length) clearInterval(typeInterval);
-      }, 30); // ~3s total for typestr
+      }, 30);
+      intervalsRef.current.push(typeInterval);
 
     }, 1500);
+    intervalsRef.current.push(step1Timeout);
 
     // Step 3: Judge Script (Start after AI finishes approx 2.5s)
-    setTimeout(() => {
+    const step3Timeout = setTimeout(() => {
       setActiveStep(3);
       
       // Stream Logs
       let logIndex = 0;
       const logInterval = setInterval(() => {
-        if (logIndex < scenario.judge_log.length) {
-          setVisibleLogs(prev => [...prev, scenario.judge_log[logIndex]]);
+        if (scenario && scenario.judge_log && logIndex < scenario.judge_log.length) {
+          const newItem = scenario.judge_log[logIndex];
+          if (newItem) {
+             setVisibleLogs(prev => [...prev, newItem]);
+          }
           
           if (judgeLogRef.current) {
             judgeLogRef.current.scrollTop = judgeLogRef.current.scrollHeight;
@@ -205,11 +223,14 @@ const SimulatorSection = () => {
         } else {
           clearInterval(logInterval);
           // Step 4: Final Verdict
-          setTimeout(() => setActiveStep(4), 500);
+          const step4Timeout = setTimeout(() => setActiveStep(4), 500);
+          intervalsRef.current.push(step4Timeout);
         }
       }, 300); // Fast scroll
+      intervalsRef.current.push(logInterval);
 
     }, 4500);
+    intervalsRef.current.push(step3Timeout);
   };
 
   return (
@@ -369,7 +390,9 @@ const SimulatorSection = () => {
                  ref={judgeLogRef}
                  className="flex-1 font-mono text-xs overflow-y-auto space-y-2 pr-2 scrollbar-hide"
                >
-                 {visibleLogs.map((log, i) => (
+                 {visibleLogs.map((log, i) => {
+                   if (!log) return null; // Defensive guard
+                   return (
                    <motion.div 
                      key={i}
                      initial={{ opacity: 0, x: 10 }}
@@ -379,7 +402,7 @@ const SimulatorSection = () => {
                      <span className="opacity-50 select-none">{(i+1).toString().padStart(2, '0')}</span>
                      <span>{log.text}</span>
                    </motion.div>
-                 ))}
+                 )})}
                  
                  {activeStep === 3 && (
                    <div className="flex gap-2 text-slate-700 animate-pulse">
