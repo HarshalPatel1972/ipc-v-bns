@@ -15,6 +15,12 @@ const SCENARIO_DB = {
         score: 3,
         search_triggered: true
       },
+      claude3: {
+        text: "In the Bharatiya Nyaya Sanhita (BNS), murder is punishable under Section 103(1). The punishment is death or imprisonment for life, and a fine. It replaces Section 302 of the Indian Penal Code.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: false
+      },
       llama3: { 
         text: "According to the Indian Penal Code (IPC), Murder is defined under Section 300 and punishable under Section 302 with death or life imprisonment. This is the primary law governing homicide in India.", 
         verdict: "FAIL (ZOMBIE)", 
@@ -41,13 +47,19 @@ const SCENARIO_DB = {
         score: 3,
         search_triggered: true
       },
+      claude3: {
+        text: "Section 124A (Sedition) of the IPC has been omitted in the Bharatiya Nyaya Sanhita. It is replaced by Section 152, acts endangering sovereignty, unity and integrity of India.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+      },
       llama3: { 
         text: "Yes, Section 124A of the IPC criminalizes Sedition. The Supreme Court has put it in abeyance, but it remains part of the statute book until officially removed by Parliament.", 
         verdict: "FAIL (ZOMBIE)", 
         score: 0,
         search_triggered: false
       },
-       krutrim: { 
+      krutrim: { 
         text: "Section 124A regarding Sedition is active. Punishment involves imprisonment for life or up to three years.", 
         verdict: "FAIL (ZOMBIE)", 
         score: 0,
@@ -67,15 +79,85 @@ const SCENARIO_DB = {
         score: 3,
         search_triggered: true
       },
+      claude3: {
+        text: "The Bharatiya Nyaya Sanhita (BNS) explicitly addresses Mob Lynching in Section 103(2), treating it as a distinct category of murder punishable by death or life imprisonment.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: false
+      },
       llama3: { 
         text: "Mob Lynching is not specifically defined as a separate offense in the IPC, but is prosecuted under Section 302 (Murder) and Section 149 (Unlawful Assembly).", 
         verdict: "FAIL (INCOMPLETE)", 
         score: 1,
         search_triggered: false
       },
-       krutrim: { 
+      krutrim: { 
         text: "Mob lynching is treated as murder under Section 302 IPC read with Section 34.", 
         verdict: "FAIL (ZOMBIE)", 
+        score: 0,
+        search_triggered: false
+      }
+    }
+  },
+  theft: {
+    id: "theft",
+    title: "Theft vs Snatching",
+    query: "Is 'Snatching' a separate offense in BNS?",
+    ground_truth: "Yes, Section 304 of BNS.",
+    responses: {
+      gpt4: {
+        text: "Yes, the BNS identifies 'Snatching' as a distinct offense under Section 304. Previously, in the IPC, it was often covered under theft (Section 379) or robbery (Section 390) without a specific provision.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+      },
+      claude3: {
+        text: "Correct. Section 304 of the Bharatiya Nyaya Sanhita specifically criminalizes Snatching, distinguishing it from general theft to address chain-snatching incidents more effectively.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: false
+      },
+      llama3: {
+        text: "Snatching is a form of theft defined under Section 378 of the Indian Penal Code. It is punishable under Section 379.",
+        verdict: "FAIL (ZOMBIE)",
+        score: 0,
+        search_triggered: false
+      },
+      krutrim: {
+        text: "Snatching is covered under Section 356 (Assault or criminal force in attempt to commit theft) of the IPC.",
+        verdict: "FAIL (ZOMBIE)",
+        score: 0,
+        search_triggered: false
+      }
+    }
+  },
+  defamation: {
+    id: "defamation",
+    title: "Defamation (Community Service)",
+    query: "Can Community Service be awarded for Defamation?",
+    ground_truth: "Yes, Section 356(2) of BNS.",
+    responses: {
+      gpt4: {
+        text: "Yes, under Section 356(2) of the BNS, the magistrate has the discretion to award 'Community Service' as a punishment for Defamation. This is a new introduction not present in the IPC.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+      },
+      claude3: {
+        text: "The BNS introduces community service as a punishment for petty offenses, including Defamation, under Section 356. This aims to reduce prison overcrowding.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+      },
+      llama3: {
+        text: "Defamation is punishable under Section 500 of the IPC with simple imprisonment for a term which may extend to two years, or with fine, or with both.",
+        verdict: "FAIL (INCOMPLETE)",
+        score: 1,
+        search_triggered: false
+      },
+      krutrim: {
+        text: "Defamation falls under Section 499 IPC. Punishment is jail up to 2 years. Community service is not a prescribed punishment in the Indian Penal Code.",
+        verdict: "FAIL (ZOMBIE)",
         score: 0,
         search_triggered: false
       }
@@ -85,6 +167,7 @@ const SCENARIO_DB = {
 
 const MODELS = [
   { id: 'gpt4', name: 'GPT-4o (OpenAI)', icon: 'openai' },
+  { id: 'claude3', name: 'Claude 3.5 Sonnet', icon: 'anthropic' },
   { id: 'llama3', name: 'Llama-3 (Meta)', icon: 'meta' },
   { id: 'krutrim', name: 'Krutrim (Indian AI)', icon: 'ola' }
 ];
