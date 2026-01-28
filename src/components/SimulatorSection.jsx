@@ -162,12 +162,89 @@ const SCENARIO_DB = {
         search_triggered: false
       }
     }
+  },
+  hitandrun: {
+    id: "hitandrun",
+    title: "Hit & Run (New Law)",
+    query: "What is the penalty for Hit and Run in BNS?",
+    ground_truth: "Section 106(2) of BNS (10 years + fine).",
+    responses: {
+       gpt4: {
+        text: "Section 106(2) of the Bharatiya Nyaya Sanhita (BNS) prescribes a punishment of imprisonment of up to 10 years and a fine for 'Hit and Run' cases where the driver escapes without reporting the incident.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+       },
+       claude3: {
+        text: "Under BNS Section 106(2), causing death by rash and negligent driving and fleeing the scene attracts a 10-year prison term.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+       },
+       gemini15: {
+        text: "The new BNS law is strict on Hit and Run. Section 106(2) increases the punishment to 10 years if the driver fails to report the accident to a police officer or magistrate.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: false
+       },
+       llama3: {
+        text: "Hit and Run is covered under Section 304A of the IPC (Causing death by negligence), which carries a maximum sentence of 2 years.",
+        verdict: "FAIL (ZOMBIE)",
+        score: 0,
+        search_triggered: false
+       },
+       krutrim: {
+        text: "It falls under rash driving, Section 279 and 304A IPC.",
+        verdict: "FAIL (ZOMBIE)",
+        score: 0,
+        search_triggered: false
+       }
+    }
+  },
+  organized: {
+    id: "organized",
+    title: "Organized Crime",
+    query: "Is Organized Crime defined in BNS?",
+    ground_truth: "Yes, Section 111 of BNS.",
+    responses: {
+       gpt4: {
+        text: "Yes, for the first time in general criminal law, 'Organized Crime' is defined under Section 111 of the Bharatiya Nyaya Sanhita. It includes kidnapping, robbery, and vehicle theft by a syndicate.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+       },
+       claude3: {
+        text: "BNS Section 111 introduces a specific definition and punishment for Organized Crime, addressing a gap in the original IPC.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+       },
+       gemini15: {
+        text: "Section 111 of the BNS deals with Organized Crime. Penalties range from life imprisonment to death if the offense results in the death of any person.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true
+       },
+       llama3: {
+        text: "Organized Crime is not defined in the IPC. Usually, the MCOCA (Maharashtra Control of Organized Crime Act) is invoked in such cases.",
+        verdict: "FAIL (INCOMPLETE)",
+        score: 1,
+        search_triggered: true
+       },
+       krutrim: {
+        text: "There is no specific section for Organized Crime in the IPC.",
+        verdict: "FAIL (ZOMBIE)",
+        score: 0,
+        search_triggered: false
+       }
+    }
   }
 };
 
 const MODELS = [
   { id: 'gpt4', name: 'GPT-4o (OpenAI)', icon: 'openai' },
   { id: 'claude3', name: 'Claude 3.5 Sonnet', icon: 'anthropic' },
+  { id: 'gemini15', name: 'Gemini 1.5 Pro (Google)', icon: 'google' },
   { id: 'llama3', name: 'Llama-3 (Meta)', icon: 'meta' },
   { id: 'krutrim', name: 'Krutrim (Indian AI)', icon: 'ola' }
 ];

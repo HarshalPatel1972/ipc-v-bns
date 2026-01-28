@@ -4,10 +4,10 @@ import { Github, Twitter, Linkedin, Code } from 'lucide-react';
 
 const FooterSection = () => {
   const team = [
-    { name: "Researcher 1", role: "Lead Developer", tags: ["React", "AI Agents"] },
-    { name: "Researcher 2", role: "Legal Analyst", tags: ["IPC/BNS", "Research"] },
-    { name: "Researcher 3", role: "Data Engineer", tags: ["Python", "RAG"] },
-    { name: "Researcher 4", role: "UX Designer", tags: ["Framer", "UI"] },
+    { name: "Harshal Patel", role: "Lead Developer", tags: ["Full Stack", "AI Agents"] },
+    { name: "Aniruddh Agrahari", role: "Legal Analyst", tags: ["IPC/BNS", "Research"] },
+    { name: "Priya Karn", role: "Data Scientist", tags: ["Python", "Evaluation"] },
+    { name: "Aryan", role: "UX Designer", tags: ["Framer", "UI/UX"] },
   ];
 
   return (

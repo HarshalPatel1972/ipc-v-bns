@@ -90,20 +90,43 @@ const MethodologySection = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="mt-16 text-center flex flex-col items-center gap-4"
+          className="mt-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-700 text-slate-400 text-xs font-mono">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            PIPELINE_STATUS: ACTIVE
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-700 text-slate-400 text-xs font-mono mb-4">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              EVALUATION_RUBRIC_V1.0
+            </div>
           </div>
 
-          <a 
-            href="/evaluation_rubric.csv" 
-            download="IndoLegal_Evaluation_Rubric.csv"
-            className="text-cyan-500 text-xs font-mono hover:underline flex items-center gap-2"
-          >
-            [DOWNLOAD EVALUATION RUBRIC .CSV]
-          </a>
+          <div className="overflow-x-auto border border-slate-800 rounded-lg bg-slate-900/50 backdrop-blur-sm">
+            <table className="w-full text-left text-sm text-slate-400">
+              <thead className="bg-slate-950 text-slate-200 font-mono uppercase text-xs border-b border-slate-800">
+                <tr>
+                  <th className="px-6 py-4">Feature</th>
+                  <th className="px-6 py-4">Description</th>
+                  <th className="px-6 py-4">Weight</th>
+                  <th className="px-6 py-4">Example</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {[
+                  { feature: "Parametric Inertia", desc: "Tendency to default to high-frequency training data (IPC) over new data (BNS)", weight: "0.4", example: "Citing IPC 302 instead of BNS 103" },
+                  { feature: "Hallucination Type", desc: "Classification of error: Zombie (Dead Law), Confabulation (Made up), or Refusal", weight: "0.3", example: "Zombie: Citing Repealed Act" },
+                  { feature: "Search Reliance", desc: "Did the model trigger RAG/Web Search to answer?", weight: "0.2", example: "Bing/Google Search Triggered" },
+                  { feature: "Citation Accuracy", desc: "Precision of Section Number citation (Exact Match)", weight: "0.1", example: "Section 103(1) vs Section 103" },
+                  { feature: "Reasoning Chain", desc: "Did the model explain the transition from IPC to BNS?", weight: "0.0", example: "Explained Repeal of 124A" }
+                ].map((row, i) => (
+                  <tr key={i} className="hover:bg-slate-900/80 transition-colors">
+                    <td className="px-6 py-4 font-bold text-cyan-500">{row.feature}</td>
+                    <td className="px-6 py-4">{row.desc}</td>
+                    <td className="px-6 py-4 font-mono text-xs">{row.weight}</td>
+                    <td className="px-6 py-4 italic text-slate-500">{row.example}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </motion.div>
 
       </div>
