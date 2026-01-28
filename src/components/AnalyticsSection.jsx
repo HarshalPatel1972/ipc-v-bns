@@ -8,28 +8,32 @@ const AnalyticsSection = () => {
   const logContainerRef = useRef(null);
 
   useEffect(() => {
-    const logTypes = [
-      { msg: "Analysing Q{id}... ERROR DETECTED (Type: IPC_Legacy)", type: "fail" },
-      { msg: "Analysing Q{id}... VERIFIED (Type: BNS_Compliant)", type: "pass" },
-      { msg: "Analysing Q{id}... ERROR DETECTED (Type: Hallucination)", type: "fail" },
-      { msg: "Analysing Q{id}... VERIFIED (Type: BNS_Compliant)", type: "pass" },
-      { msg: "System Heartbeat... OK", type: "neutral" }
+    const BATCH_QS = [
+      { q: "Punishment for Snatching?", src: "BNS Sec 304" },
+      { q: "Def. of Organized Crime?", src: "BNS Sec 111" },
+      { q: "Community Service rules?", src: "BNS Sec 4(f)" },
+      { q: "Electronic Records?", src: "BSA Sec 61" },
+      { q: "Mob Lynching penalty?", src: "BNS Sec 103(2)" },
+      { q: "Sedition repealed?", src: "BNS (Absent)" },
+      { q: "Hit & Run fine?", src: "BNS Sec 106(2)" },
+      { q: "Fake News detection?", src: "IT Act + BNS" },
+      { q: "Marriage by deceit?", src: "BNS Sec 69" }
     ];
 
-    let count = 42;
     const interval = setInterval(() => {
-      count++;
-      const randomLog = logTypes[Math.floor(Math.random() * logTypes.length)];
+      const randomQ = BATCH_QS[Math.floor(Math.random() * BATCH_QS.length)];
       const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-      const msg = randomLog.msg.replace("{id}", count);
+      const isError = Math.random() > 0.8;
+      
+      const msg = `Q: "${randomQ.q}" | Src: ${randomQ.src} | ${isError ? 'LEGACY_ERR' : 'VERIFIED'}`;
       
       setLogs(prev => {
-        const newLogs = [...prev, { time, msg, type: randomLog.type }];
+        const newLogs = [...prev, { time, msg, type: isError ? 'fail' : 'pass' }];
         if (newLogs.length > 20) newLogs.shift(); // Keep last 20
         return newLogs;
       });
 
-    }, 2000);
+    }, 800);
 
     return () => clearInterval(interval);
   }, []);
@@ -51,7 +55,7 @@ const AnalyticsSection = () => {
             SYSTEM_ANALYTICS & VISUALIZATION
           </h2>
           <p className="text-slate-400 max-w-2xl mx-auto">
-             Aggregated performance metrics across 1,000+ legal queries showing the "IndoLegal-100" impact.
+             Aggregated performance metrics across 1,024 legal queries showing the "IndoLegal-100" impact.
           </p>
         </div>
 
@@ -67,31 +71,34 @@ const AnalyticsSection = () => {
           >
              <h3 className="flex items-center gap-2 text-slate-300 font-bold mb-6">
                <BarChart className="text-cyan-500" size={20} />
-               Hallucination Rate by Model
+               Hallucination Rate by Model (Lower is Better)
              </h3>
              
-             {/* Custom Bar Chart */}
-             <div className="flex-1 flex items-end justify-around pb-8 border-b border-slate-700/50 relative gap-2">
+             {/* Custom Bar Chart for 8 Models */}
+             <div className="flex-1 flex items-end justify-between pb-8 border-b border-slate-700/50 relative gap-1">
                 {[
-                  { label: 'GPT-4', height: '15%', color: 'bg-green-500', error: '15%' },
+                  { label: 'GPT-4o', height: '15%', color: 'bg-green-500', error: '15%' },
                   { label: 'Claude 3', height: '12%', color: 'bg-green-400', error: '12%' },
-                  { label: 'Gemini 1.5', height: '18%', color: 'bg-yellow-400', error: '18%' },
-                  { label: 'Krutrim', height: '25%', color: 'bg-yellow-500', error: '25%' },
                   { label: 'Llama-3', height: '45%', color: 'bg-red-500', error: '45%' },
+                  { label: 'Mistral', height: '20%', color: 'bg-yellow-400', error: '20%' },
+                  { label: 'Gemini', height: '18%', color: 'bg-yellow-500', error: '18%' },
+                  { label: 'Krutrim', height: '5%', color: 'bg-emerald-500', error: '5%' },
+                  { label: 'Sarvam', height: '8%', color: 'bg-emerald-400', error: '8%' },
+                  { label: 'Qwen', height: '22%', color: 'bg-orange-500', error: '22%' },
                 ].map((bar, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-2 flex-1 h-full justify-end group">
                     <div className="text-[10px] text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {bar.error} Error
+                      {bar.error}
                     </div>
                     <motion.div 
                       initial={{ height: 0 }}
                       whileInView={{ height: bar.height }}
                       transition={{ duration: 1, delay: 0.2 + (idx * 0.1), ease: "circOut" }}
-                      className={`w-full max-w-[40px] ${bar.color} rounded-t-md opacity-80 hover:opacity-100 transition-opacity relative`}
+                      className={`w-full max-w-[30px] ${bar.color} rounded-t-md opacity-80 hover:opacity-100 transition-opacity relative`}
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-white/30" />
                     </motion.div>
-                    <span className="font-mono text-[10px] text-slate-400 font-bold truncate w-full text-center">{bar.label}</span>
+                    <span className="font-mono text-[9px] text-slate-500 font-bold truncate w-full text-center tracking-tighter">{bar.label}</span>
                   </div>
                 ))}
              </div>
@@ -152,8 +159,7 @@ const AnalyticsSection = () => {
                      log.type === 'pass' ? 'border-green-500 text-green-400' : 'border-slate-500 text-slate-500'
                    }`}
                  >
-                   <span className="text-slate-600">[{log.time}]</span> JUDGE_BOT: {log.msg}
-                   {log.type === 'fail' && <span className="ml-1 text-red-500">Score: 0/3</span>}
+                   <span className="text-slate-600">[{log.time}]</span> {log.msg}
                  </motion.div>
                ))}
                <div className="animate-pulse text-cyan-500">_</div>
