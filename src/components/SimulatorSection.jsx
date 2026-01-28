@@ -194,40 +194,69 @@ const TeachingView = ({ model, scenario, onResume }) => {
    const [visibleLogs, setVisibleLogs] = useState([]);
    const [aiText, setAiText] = useState("");
    const judgeRef = useRef(null);
+   const timersRef = useRef([]);
+
+   // Helper to track timers for cleanup
+   const addTimer = (id, type = 'timeout') => {
+     timersRef.current.push({ id, type });
+   };
+
+   useEffect(() => {
+     // Safe cleanup function
+     return () => {
+       timersRef.current.forEach(t => {
+         if (t.type === 'timeout') clearTimeout(t.id);
+         else clearInterval(t.id);
+       });
+       timersRef.current = [];
+     };
+   }, []);
 
    useEffect(() => {
      // Sequence: GT -> AI -> Judge -> Result
-     let timers = [];
      
-     timers.push(setTimeout(() => setStep(1), 500)); // Show GT card
+     // 1. Show GT
+     const t1 = setTimeout(() => setStep(1), 500);
+     addTimer(t1);
      
-     timers.push(setTimeout(() => {
-       setStep(2); // Start AI Typing
+     // 2. Start AI Typing
+     const t2 = setTimeout(() => {
+       setStep(2); 
        let i = 0;
        const interval = setInterval(() => {
+         // Defensive check
+         if (!scenario || !scenario.ai_response) return;
          setAiText(scenario.ai_response.substring(0, i + 1));
          i++;
          if (i >= scenario.ai_response.length) clearInterval(interval);
        }, 20);
-     }, 1500));
+       addTimer(interval, 'interval');
+     }, 1500);
+     addTimer(t2);
 
-     timers.push(setTimeout(() => {
-       setStep(3); // Start Judge Log
+     // 3. Start Judge Log
+     const t3 = setTimeout(() => {
+       setStep(3); 
        let j = 0;
        const interval = setInterval(() => {
-         if (j < scenario.judge_log.length) {
+         if (scenario && scenario.judge_log && j < scenario.judge_log.length) {
             setVisibleLogs(prev => [...prev, scenario.judge_log[j]]);
             if (judgeRef.current) judgeRef.current.scrollTop = judgeRef.current.scrollHeight;
             j++;
          } else {
             clearInterval(interval);
-            setTimeout(() => setStep(4), 500); // Show Result
+            const t4 = setTimeout(() => setStep(4), 500); // Show Result
+            addTimer(t4);
          }
        }, 400);
-     }, 3500));
+       addTimer(interval, 'interval');
+     }, 3500);
+     addTimer(t3);
 
-     return () => timers.forEach(clearTimeout);
-   }, []);
+   }, [scenario]); // Added scenario dependency
+
+   // Guard for render
+   if (!scenario) return null;
 
    return (
      <div className="h-[500px] grid md:grid-cols-12 divide-x divide-slate-800 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden relative">
@@ -273,11 +302,13 @@ const TeachingView = ({ model, scenario, onResume }) => {
         <div className="hidden md:flex md:col-span-4 p-6 flex-col bg-slate-950/30">
            <div className="flex items-center gap-2 text-xs text-slate-500 uppercase mb-4 font-bold tracking-wider"><Scale size={14}/> Auto-Judge Logic</div>
            <div ref={judgeRef} className="flex-1 overflow-y-auto space-y-2 text-xs font-mono">
-              {visibleLogs.map((l, i) => (
+              {visibleLogs.map((l, i) => {
+                 if (!l || !l.type) return null; // Defensive guard
+                 return (
                  <div key={i} className={`p-2 rounded ${l.type === 'error' ? 'bg-red-950/30 text-red-400 border border-red-900' : l.type === 'success' ? 'text-green-400' : 'text-slate-400'}`}>
                     <span className="opacity-50 mr-2">{(i+1).toString().padStart(2,'0')}</span>{l.text}
                  </div>
-              ))}
+              )})}
            </div>
         </div>
      </div>
