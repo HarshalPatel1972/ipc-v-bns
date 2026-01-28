@@ -634,26 +634,30 @@ const SimulatorSection = () => {
   const startGradingSequence = (data) => {
       setSimState('grading');
       const rubricItems = data.rubric || [];
-      let currentStep = 0;
-
+      
+      // Use interval to add items one by one based on CURRENT state length
       const gradeInterval = setInterval(() => {
-          if (currentStep < rubricItems.length) {
-              setGradingSteps(prev => [...prev, rubricItems[currentStep]]);
-              
-               if (terminalRef.current) {
-                terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+          setGradingSteps(prev => {
+              if (prev.length < rubricItems.length) {
+                  // Scroll to bottom
+                  if (terminalRef.current) {
+                      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+                  }
+                  // Return new array with next item
+                  return [...prev, rubricItems[prev.length]];
+              } else {
+                  // All items added
+                  clearInterval(gradeInterval);
+                  // Trigger completion
+                  setTimeout(() => {
+                      setSimState('complete');
+                      setResult(data);
+                      setIsRunning(false);
+                  }, 800);
+                  return prev;
               }
-              
-              currentStep++;
-          } else {
-              clearInterval(gradeInterval);
-              setTimeout(() => {
-                  setSimState('complete');
-                  setResult(data);
-                  setIsRunning(false);
-              }, 800);
-          }
-      }, 800); // Add one check every 800ms
+          });
+      }, 800);
   };
 
   /* Helper to get Model Icon */
