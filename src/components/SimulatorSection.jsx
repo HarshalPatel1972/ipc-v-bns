@@ -359,7 +359,8 @@ const SimulatorSection = () => {
     const interval = setInterval(() => {
       setProgress(p => {
         // If we hit 50% and it's a teaching model, trigger INTERRUPT
-        if (p >= 50 && currentModel.type === 'teaching' && status === 'RUNNING') {
+        // STRICT CHECK (=== 50) needed so Resume (51) doesn't re-trigger it
+        if (p === 50 && currentModel.type === 'teaching' && status === 'RUNNING') {
           clearInterval(interval);
           setStatus('INTERRUPT');
           return 50;
@@ -384,7 +385,6 @@ const SimulatorSection = () => {
         // Add detailed log (No Blackbox)
         if (Math.random() > 0.6) {
            const randQ = BATCH_QS[Math.floor(Math.random() * BATCH_QS.length)];
-           const batchId = Math.floor(Math.random() * 800) + 100;
            
            // Format: Q: [Question] | Source: [Section] | Verdict: [PASS]
            const logMsg = `Q: "${randQ.q}" | Src: ${randQ.src} | VERIFIED`;
