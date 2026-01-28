@@ -111,6 +111,38 @@ const STEPS = [
   { id: 4, label: "Verdict", icon: CheckCircle },
 ];
 
+
+// Error Boundary for debugging
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Simulator Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-12 bg-red-950 text-red-100 font-mono text-sm">
+          <h2 className="text-xl font-bold mb-4">Simulator Crashed</h2>
+          <p className="mb-2">{this.state.error && this.state.error.toString()}</p>
+          <pre className="bg-red-900/50 p-4 rounded overflow-auto text-xs">
+            {this.state.error?.stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const SimulatorSection = () => {
   const [activeScenarioId, setActiveScenarioId] = useState('murder');
   const [activeStep, setActiveStep] = useState(0); // 0=Idle, 1=GT, 2=Gen, 3=Judge, 4=Result
@@ -395,4 +427,10 @@ const SimulatorSection = () => {
   );
 };
 
-export default SimulatorSection;
+export default function SimulatorSectionWithBoundary() {
+  return (
+    <ErrorBoundary>
+      <SimulatorSection />
+    </ErrorBoundary>
+  );
+}
