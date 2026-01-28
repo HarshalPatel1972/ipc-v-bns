@@ -87,9 +87,14 @@ const Navbar = () => {
                 )}
               </button>
             ))}
-            <button className="px-4 py-2 border border-cyan-500/30 text-cyan-400 text-xs font-mono rounded hover:bg-cyan-500/10 transition-colors">
+            <a 
+              href="https://github.com/HarshalPatel1972/ipc-v-bns" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-4 py-2 border border-cyan-500/30 text-cyan-400 text-xs font-mono rounded hover:bg-cyan-500/10 transition-colors"
+            >
               [GITHUB]
-            </button>
+            </a>
           </div>
         </div>
       </nav>
