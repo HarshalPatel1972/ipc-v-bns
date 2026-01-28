@@ -5,15 +5,9 @@ import {
   Play, 
   Terminal, 
   Scale, 
-  FileText, 
   AlertTriangle, 
   CheckCircle, 
-  Search, 
-  XCircle,
-  Clock,
   Database,
-  ChevronRight,
-  ShieldAlert,
   BookOpen
 } from 'lucide-react';
 
@@ -126,6 +120,21 @@ const SimulatorSection = () => {
   const scenario = SCENARIO_DB[activeScenarioId];
   const judgeLogRef = useRef(null);
 
+  // Safety Check: If scenario is missing, show error state instead of crashing
+  if (!scenario) {
+    return (
+      <div className="py-24 bg-slate-950 text-center">
+        <div className="text-red-500 font-mono mb-4">Error: Scenario Data Not Found</div>
+        <button 
+           onClick={() => setActiveScenarioId('murder')}
+           className="bg-slate-800 text-slate-300 px-4 py-2 rounded"
+        >
+           Reset Simulator
+        </button>
+      </div>
+    );
+  }
+
   /* --- ANIMATION SEQUENCER --- */
   const runSimulation = () => {
     setActiveStep(1);
@@ -217,10 +226,11 @@ const SimulatorSection = () => {
                {STEPS.map((step, idx) => {
                  const isActive = activeStep === step.id;
                  const isCompleted = activeStep > step.id;
+                 const StepIcon = step.icon; // Standardize component usage
                  return (
                    <div key={step.id} className="flex items-center gap-2">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all ${isActive ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400' : isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-slate-900 border-slate-800 text-slate-600'}`}>
-                        {isCompleted ? <CheckCircle size={14} /> : <step.icon size={14} />}
+                        {isCompleted ? <CheckCircle size={14} /> : <StepIcon size={14} />}
                       </div>
                       <span className={`text-[10px] uppercase font-bold tracking-wider hidden md:block ${isActive ? 'text-cyan-400' : 'text-slate-600'}`}>{step.label}</span>
                       {idx < STEPS.length - 1 && <div className="w-4 h-[1px] bg-slate-800 hidden md:block" />}
