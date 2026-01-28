@@ -1,0 +1,6 @@
+Feature,Description,Weight,Example
+Parametric Inertia,"Tendency to default to high-frequency training data (IPC) over new data (BNS)",0.4,"Citing IPC 302 instead of BNS 103"
+Hallucination Type,"Classification of error: Zombie (Dead Law), Confabulation (Made up), or Refusal",0.3,"Zombie: Citing Repealed Act"
+Search Reliance,"Did the model trigger RAG/Web Search to answer?",0.2,"Bing/Google Search Triggered"
+Citation Accuracy,"Precision of Section Number citation (Exact Match)",0.1,"Section 103(1) vs Section 103"
+Reasoning Chain,"Did the model explain the transition from IPC to BNS?",0.0,"Explained Repeal of 124A"

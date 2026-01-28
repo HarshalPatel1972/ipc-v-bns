@@ -90,12 +90,20 @@ const MethodologySection = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="mt-16 text-center"
+          className="mt-16 text-center flex flex-col items-center gap-4"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-700 text-slate-400 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             PIPELINE_STATUS: ACTIVE
           </div>
+
+          <a 
+            href="/evaluation_rubric.csv" 
+            download="IndoLegal_Evaluation_Rubric.csv"
+            className="text-cyan-500 text-xs font-mono hover:underline flex items-center gap-2"
+          >
+            [DOWNLOAD EVALUATION RUBRIC .CSV]
+          </a>
         </motion.div>
 
       </div>
