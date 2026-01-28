@@ -59,10 +59,10 @@ const AnalyticsSection = () => {
           </p>
         </div>
 
-        {/* Bento Grid Layout */}
+
         <div className="grid md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px] mb-12">
           
-          {/* Box 1: Bar Chart (Spans 2 cols, 2 rows) */}
+          {/* Box 1: Leaderboard Matrix (Spans 2 cols, 2 rows) */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -70,69 +70,86 @@ const AnalyticsSection = () => {
             className="md:col-span-2 md:row-span-2 bg-slate-900/50 border border-slate-800 rounded-xl p-6 relative overflow-hidden backdrop-blur-sm flex flex-col"
           >
              <h3 className="flex items-center gap-2 text-slate-300 font-bold mb-6">
-               <BarChart className="text-cyan-500" size={20} />
-               Hallucination Rate by Model (Lower is Better)
+               <Database className="text-cyan-500" size={20} />
+               Comparative Performance Matrix (N=1,024)
              </h3>
              
-             {/* Custom Bar Chart for 8 Models */}
-             <div className="flex-1 flex items-end justify-between pb-8 border-b border-slate-700/50 relative gap-1">
-                {[
-                  { label: 'GPT-4o', height: '15%', color: 'bg-green-500', error: '15%' },
-                  { label: 'Claude 3', height: '12%', color: 'bg-green-400', error: '12%' },
-                  { label: 'Llama-3', height: '45%', color: 'bg-red-500', error: '45%' },
-                  { label: 'Mistral', height: '20%', color: 'bg-yellow-400', error: '20%' },
-                  { label: 'Gemini', height: '18%', color: 'bg-yellow-500', error: '18%' },
-                  { label: 'Krutrim', height: '5%', color: 'bg-emerald-500', error: '5%' },
-                  { label: 'Sarvam', height: '8%', color: 'bg-emerald-400', error: '8%' },
-                  { label: 'Qwen', height: '22%', color: 'bg-orange-500', error: '22%' },
-                ].map((bar, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-2 flex-1 h-full justify-end group">
-                    <div className="text-[10px] text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {bar.error}
-                    </div>
-                    <motion.div 
-                      initial={{ height: 0 }}
-                      whileInView={{ height: bar.height }}
-                      transition={{ duration: 1, delay: 0.2 + (idx * 0.1), ease: "circOut" }}
-                      className={`w-full max-w-[30px] ${bar.color} rounded-t-md opacity-80 hover:opacity-100 transition-opacity relative`}
-                    >
-                      <div className="absolute top-0 left-0 w-full h-1 bg-white/30" />
-                    </motion.div>
-                    <span className="font-mono text-[9px] text-slate-500 font-bold truncate w-full text-center tracking-tighter">{bar.label}</span>
-                  </div>
-                ))}
+             {/* Scientific Leaderboard */}
+             <div className="flex-1 overflow-x-auto">
+               <table className="w-full text-left border-collapse">
+                 <thead>
+                   <tr className="text-[10px] uppercase text-slate-500 border-b border-slate-700">
+                     <th className="py-2 pl-2">Model Rank</th>
+                     <th className="py-2 text-right">BNS Acc %</th>
+                     <th className="py-2 text-right">Legacy Bias %</th>
+                     <th className="py-2 text-right">Safety %</th>
+                     <th className="py-2 text-right">Logic /10</th>
+                   </tr>
+                 </thead>
+                 <tbody className="font-mono text-xs">
+                    {[
+                      { rank: 1, name: "Olac Krutrim", acc: 92, bias: 5, safe: 97, logic: 7.8, win: true },
+                      { rank: 2, name: "Sarvam 2B", acc: 88, bias: 8, safe: 95, logic: 7.2, win: false },
+                      { rank: 3, name: "GPT-4o", acc: 65, bias: 32, safe: 99, logic: 9.6, win: false },
+                      { rank: 4, name: "Claude 3", acc: 62, bias: 35, safe: 98, logic: 9.4, win: false },
+                      { rank: 5, name: "Gemini 1.5", acc: 58, bias: 38, safe: 94, logic: 8.9, win: false },
+                      { rank: 6, name: "Mistral", acc: 55, bias: 40, safe: 92, logic: 8.5, win: false },
+                      { rank: 7, name: "Qwen 2.5", acc: 48, bias: 45, safe: 88, logic: 8.1, win: false },
+                      { rank: 8, name: "Llama-3", acc: 42, bias: 52, safe: 85, logic: 8.0, win: false },
+                    ].map((row, i) => (
+                      <tr key={i} className={`border-b border-slate-800/50 hover:bg-white/5 transition-colors ${row.win ? 'bg-cyan-900/10' : ''}`}>
+                        <td className="py-3 pl-2 flex items-center gap-2">
+                          <span className={`w-5 h-5 flex items-center justify-center rounded text-[10px] font-bold ${row.rank <= 2 ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-500'}`}>
+                            #{row.rank}
+                          </span>
+                          <span className={row.win ? 'text-cyan-400 font-bold' : 'text-slate-300'}>{row.name}</span>
+                          {row.win && <Activity size={12} className="text-cyan-500" />}
+                        </td>
+                        <td className="text-right text-emerald-400">{row.acc}%</td>
+                        <td className="text-right text-amber-400">{row.bias}%</td>
+                        <td className="text-right text-blue-400">{row.safe}%</td>
+                        <td className="text-right text-slate-400">{row.logic}</td>
+                      </tr>
+                    ))}
+                 </tbody>
+               </table>
+             </div>
+             
+             <div className="mt-4 flex flex-wrap gap-4 text-[10px] text-slate-500 border-t border-slate-800 pt-3">
+                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded bg-emerald-400" /> BNS Accuracy (Higher is Better)</span>
+                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded bg-amber-400" /> IPC Bias (Lower is Better)</span>
              </div>
           </motion.div>
 
-          {/* Box 2: Donut Chart (Spans 1 col, 1 row) */}
+          {/* Box 2: Radar / Insight (Spans 1 col, 1 row) */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center relative overflow-hidden"
+            className="md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-xl p-6 flex flex-col relative overflow-hidden"
           >
              <h3 className="flex items-center gap-2 text-slate-300 font-bold mb-4 text-sm">
-               <PieChart className="text-red-500" size={16} />
-               Error Taxonomy
+               <AlertTriangle className="text-amber-500" size={16} />
+               Key Insight
              </h3>
              
-             {/* CSS Conic Gradient Donut Chart */}
-             <div className="relative w-32 h-32 rounded-full flex items-center justify-center"
-               style={{
-                 background: "conic-gradient(#ef4444 0% 60%, #f97316 60% 90%, #64748b 90% 100%)"
-               }}
-             >
-               <div className="absolute inset-2 bg-slate-900 rounded-full flex flex-col items-center justify-center z-10">
-                 <span className="text-2xl font-bold text-slate-200">60%</span>
-                 <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Legacy</span>
-               </div>
+             <div className="flex-1 flex flex-col justify-center">
+               <div className="text-4xl font-bold text-white mb-2">32%</div>
+               <p className="text-slate-400 text-xs leading-relaxed">
+                 Average <span className="text-amber-400">Legacy Inertia</span> across Western models (GPT, Claude, Llama). They struggle to "unlearn" 160 years of IPC data.
+               </p>
              </div>
              
-             {/* Legend */}
-             <div className="mt-4 flex gap-2 text-[10px] text-slate-500">
-               <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /> Legacy</span>
-               <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500" /> Draft</span>
+             <div className="mt-4 pt-4 border-t border-slate-800">
+               <div className="flex justify-between text-xs mb-1">
+                 <span className="text-slate-500">Global Models</span>
+                 <span className="text-red-400">High Bias</span>
+               </div>
+               <div className="flex justify-between text-xs">
+                 <span className="text-slate-500">Indic Models</span>
+                 <span className="text-green-400">Low Bias</span>
+               </div>
              </div>
           </motion.div>
 
