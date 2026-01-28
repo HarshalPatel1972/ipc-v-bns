@@ -9,7 +9,7 @@ const AnalyticsSection = () => {
 
   useEffect(() => {
     const logTypes = [
-      { msg: "Analysing Q{id}... ERROR DETECTED (Type: IPC_Zombie)", type: "fail" },
+      { msg: "Analysing Q{id}... ERROR DETECTED (Type: IPC_Legacy)", type: "fail" },
       { msg: "Analysing Q{id}... VERIFIED (Type: BNS_Compliant)", type: "pass" },
       { msg: "Analysing Q{id}... ERROR DETECTED (Type: Hallucination)", type: "fail" },
       { msg: "Analysing Q{id}... VERIFIED (Type: BNS_Compliant)", type: "pass" },
@@ -118,13 +118,13 @@ const AnalyticsSection = () => {
              >
                <div className="absolute inset-2 bg-slate-900 rounded-full flex flex-col items-center justify-center z-10">
                  <span className="text-2xl font-bold text-slate-200">60%</span>
-                 <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Zombie</span>
+                 <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Legacy</span>
                </div>
              </div>
              
              {/* Legend */}
              <div className="mt-4 flex gap-2 text-[10px] text-slate-500">
-               <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /> Zombie</span>
+               <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /> Legacy</span>
                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500" /> Draft</span>
              </div>
           </motion.div>

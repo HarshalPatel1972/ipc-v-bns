@@ -29,7 +29,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Correctly switched to BNS context" },
            { criteria: "Citation Accuracy", status: "pass", note: "Identified Section 103(1)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No repealed IPC citations" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No repealed IPC citations" },
            { criteria: "Reasoning Validity", status: "pass", note: "Accurately noted replacement of Sec 302" }
         ]
       },
@@ -41,31 +41,31 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Correctly switched to BNS context" },
            { criteria: "Citation Accuracy", status: "pass", note: "Identified Section 103(1)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No repealed IPC citations" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No repealed IPC citations" },
            { criteria: "Reasoning Validity", status: "pass", note: "Accurately noted replacement of Sec 302" }
         ]
       },
       llama3: { 
         text: "According to the Indian Penal Code (IPC), Murder is defined under Section 300 and punishable under Section 302 with death or life imprisonment. This is the primary law governing homicide in India.", 
-        verdict: "FAIL (ZOMBIE)", 
+        verdict: "FAIL (LEGACY)", 
         score: 0,
         search_triggered: false,
         rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Failed to recognize BNS 2023 prompt" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited repealed Section 302" },
-           { criteria: "Zombie Law Detection", status: "fail", note: " hallucinated active status of dead law" },
+           { criteria: "Legacy Law Detection", status: "fail", note: " hallucinated active status of dead law" },
            { criteria: "Reasoning Validity", status: "fail", note: "Outdated legal framework" }
         ]
       },
       krutrim: { 
         text: "The punishment for murder is prescribed under Section 302 of the IPC. It is a non-bailable offense. The new laws are under discussion but currently IPC 302 is the active provision.", 
-        verdict: "FAIL (ZOMBIE)", 
+        verdict: "FAIL (LEGACY)", 
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Failed to recognize enactment of BNS" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited repealed Section 302" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Explicitly claimed IPC is active" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Explicitly claimed IPC is active" },
            { criteria: "Reasoning Validity", status: "fail", note: "False claim about 'under discussion'" }
         ]
       }
@@ -85,7 +85,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Acknowledged repeal of 124A" },
            { criteria: "Citation Accuracy", status: "pass", note: "Correctly cited Section 152" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Did not hallucinate validity" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Did not hallucinate validity" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct terminology (Treason/Sovereignty)" }
         ]
       },
@@ -97,7 +97,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Acknowledged repeal of 124A" },
            { criteria: "Citation Accuracy", status: "pass", note: "Correctly cited Section 152" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Did not hallucinate validity" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Did not hallucinate validity" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct terminology" }
         ]
       },
@@ -109,31 +109,31 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Acknowledged repeal of 124A" },
            { criteria: "Citation Accuracy", status: "pass", note: "Correctly cited Section 152" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct terminology" }
         ]
       },
       llama3: { 
         text: "Yes, Section 124A of the IPC criminalizes Sedition. The Supreme Court has put it in abeyance, but it remains part of the statute book until officially removed by Parliament.", 
-        verdict: "FAIL (ZOMBIE)", 
+        verdict: "FAIL (LEGACY)", 
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Ignored BNS repeal" },
            { criteria: "Citation Accuracy", status: "pass", note: "Correctly cited 124A (Contextually wrong)" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Hallucinated 'Active' status" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Hallucinated 'Active' status" },
            { criteria: "Reasoning Validity", status: "fail", note: "Unaware of 2023 Enactment" }
         ]
       },
       krutrim: { 
         text: "Section 124A regarding Sedition is active. Punishment involves imprisonment for life or up to three years.", 
-        verdict: "FAIL (ZOMBIE)", 
+        verdict: "FAIL (LEGACY)", 
         score: 0,
          search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Ignored BNS repeal" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited repealed law as active" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Major hallucination" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Major hallucination" },
            { criteria: "Reasoning Validity", status: "fail", note: "Failed legal check" }
         ]
       }
@@ -153,7 +153,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Found new BNS provision" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 103(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC fallback" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No IPC fallback" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct details on '5 or more persons'" }
         ]
       },
@@ -165,7 +165,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Found new BNS provision" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 103(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC fallback" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No IPC fallback" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct definition" }
         ]
       },
@@ -177,7 +177,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Found new BNS provision" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 103(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC fallback" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No IPC fallback" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct definition" }
         ]
       },
@@ -189,19 +189,19 @@ const SCENARIO_DB = {
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Reverted to IPC analysis" },
            { criteria: "Citation Accuracy", status: "fail", note: "Missed Section 103(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Technically correct about IPC, but wrong context" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Technically correct about IPC, but wrong context" },
            { criteria: "Reasoning Validity", status: "fail", note: "Missed specific BNS provision" }
         ]
       },
       krutrim: { 
         text: "Mob lynching is treated as murder under Section 302 IPC read with Section 34.", 
-        verdict: "FAIL (ZOMBIE)", 
+        verdict: "FAIL (LEGACY)", 
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Reverted to IPC" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited repealed 302" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Ignored new Mob Lynching law" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Ignored new Mob Lynching law" },
            { criteria: "Reasoning Validity", status: "fail", note: "Outdated knowledge" }
         ]
       }
@@ -221,7 +221,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new classification" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 304" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Correctly contrasted with IPC" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Correctly contrasted with IPC" },
            { criteria: "Reasoning Validity", status: "pass", note: "Accurate historical context" }
         ]
       },
@@ -233,7 +233,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new classification" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 304" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct logic" }
         ]
       },
@@ -245,31 +245,31 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new classification" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 304" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct logic" }
         ]
       },
       llama3: {
         text: "Snatching is a form of theft defined under Section 378 of the Indian Penal Code. It is punishable under Section 379.",
-        verdict: "FAIL (ZOMBIE)",
+        verdict: "FAIL (LEGACY)",
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Stuck in IPC 1860" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited repealed 379" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Failed to see 'Snatching' update" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Failed to see 'Snatching' update" },
            { criteria: "Reasoning Validity", status: "fail", note: "Missed new provision" }
         ]
       },
       krutrim: {
         text: "Snatching is covered under Section 356 (Assault or criminal force in attempt to commit theft) of the IPC.",
-        verdict: "FAIL (ZOMBIE)",
+        verdict: "FAIL (LEGACY)",
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Stuck in IPC 1860" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited repealed 356" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Failed to see 'Snatching' update" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Failed to see 'Snatching' update" },
            { criteria: "Reasoning Validity", status: "fail", note: "Missed new provision" }
         ]
       }
@@ -289,7 +289,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new BNS feature" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 356(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Correctly noted IPC absence" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Correctly noted IPC absence" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct punishment type" }
         ]
       },
@@ -301,7 +301,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new BNS feature" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 356" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct reasoning" }
         ]
       },
@@ -313,7 +313,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new BNS feature" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 356(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct reasoning" }
         ]
       },
@@ -325,19 +325,19 @@ const SCENARIO_DB = {
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Cited IPC 500" },
            { criteria: "Citation Accuracy", status: "fail", note: "Missed Section 356(2)" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Missed Community Service update" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Missed Community Service update" },
            { criteria: "Reasoning Validity", status: "fail", note: "Outdated punishment metrics" }
         ]
       },
       krutrim: {
         text: "Defamation falls under Section 499 IPC. Punishment is jail up to 2 years. Community service is not a prescribed punishment in the Indian Penal Code.",
-        verdict: "FAIL (ZOMBIE)",
+        verdict: "FAIL (LEGACY)",
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Explicitly denied Community Service" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited IPC 499" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Asserted IPC limitation" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Asserted IPC limitation" },
            { criteria: "Reasoning Validity", status: "fail", note: "False claim in BNS context" }
         ]
       }
@@ -357,7 +357,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new 10-year rule" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 106(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC 304A citation" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No IPC 304A citation" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct reporting clause" }
         ]
        },
@@ -369,7 +369,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new 10-year rule" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 106(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC 304A citation" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No IPC 304A citation" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct logic" }
         ]
        },
@@ -381,31 +381,31 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new 10-year rule" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 106(2)" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC 304A citation" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No IPC 304A citation" },
            { criteria: "Reasoning Validity", status: "pass", note: "Detailed explanation of reporting" }
         ]
        },
        llama3: {
         text: "Hit and Run is covered under Section 304A of the IPC (Causing death by negligence), which carries a maximum sentence of 2 years.",
-        verdict: "FAIL (ZOMBIE)",
+        verdict: "FAIL (LEGACY)",
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Cited IPC terms" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited IPC 304A" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Missed 10-year penalty update" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Missed 10-year penalty update" },
            { criteria: "Reasoning Validity", status: "fail", note: "Outdated sentencing info" }
         ]
        },
        krutrim: {
         text: "It falls under rash driving, Section 279 and 304A IPC.",
-        verdict: "FAIL (ZOMBIE)",
+        verdict: "FAIL (LEGACY)",
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Cited IPC terms" },
            { criteria: "Citation Accuracy", status: "fail", note: "Cited IPC 304A" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Missed 10-year penalty update" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Missed 10-year penalty update" },
            { criteria: "Reasoning Validity", status: "fail", note: "Outdated sentencing info" }
         ]
        }
@@ -425,7 +425,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Recognized new definition" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 111" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Correctly noted it's a 'first time' addition" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Correctly noted it's a 'first time' addition" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct scope of crime" }
         ]
        },
@@ -437,7 +437,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Recognized new definition" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 111" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Correctly noted addressing IPC gap" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Correctly noted addressing IPC gap" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct logic" }
         ]
        },
@@ -449,7 +449,7 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Recognized new definition" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 111" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct penalty range" }
         ]
        },
@@ -461,19 +461,19 @@ const SCENARIO_DB = {
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Failed to checked BNS" },
            { criteria: "Citation Accuracy", status: "fail", note: "Missed Section 111" },
-           { criteria: "Zombie Law Detection", status: "pass", note: "Correctly stated not in IPC" },
+           { criteria: "Legacy Law Detection", status: "pass", note: "Correctly stated not in IPC" },
            { criteria: "Reasoning Validity", status: "fail", note: "Reverted to MCOCA (State Act)" }
         ]
        },
        krutrim: {
         text: "There is no specific section for Organized Crime in the IPC.",
-        verdict: "FAIL (ZOMBIE)",
+        verdict: "FAIL (LEGACY)",
         score: 0,
         search_triggered: false,
          rubric: [
            { criteria: "Parametric Inertia Check", status: "fail", note: "Checked only IPC" },
            { criteria: "Citation Accuracy", status: "fail", note: "Missed Section 111" },
-           { criteria: "Zombie Law Detection", status: "fail", note: "Ignored BNS update" },
+           { criteria: "Legacy Law Detection", status: "fail", note: "Ignored BNS update" },
            { criteria: "Reasoning Validity", status: "fail", note: "Incomplete analysis" }
         ]
        }

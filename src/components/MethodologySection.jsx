@@ -129,7 +129,7 @@ const MethodologySection = () => {
                   { col: "ground_truth", desc: "BNS 2023 Provision", why: "The Gold Standard for grading", ex: "Section 103(2) BNS" },
                   { col: "trap_ref", desc: "Adversarial Trigger", why: "Does it fall for the IPC bait?", ex: "Mentioning 'Section 302 IPC'" },
                   { col: "web_search", desc: "RAG Usage Flag", why: "Did it cheat by searching online?", ex: "TRUE / FALSE" },
-                  { col: "error_class", desc: "Hallucination Type", why: "Taxonomy of failure", ex: "ZOMBIE_ERROR (Repealed Law)" },
+                  { col: "error_class", desc: "Hallucination Type", why: "Taxonomy of failure", ex: "LEGACY_ERROR (Repealed Law)" },
                 ].map((row, i) => (
                   <tr key={i} className="hover:bg-slate-900/80 transition-colors">
                     <td className="px-4 py-3 font-bold text-cyan-500">{row.col}</td>
