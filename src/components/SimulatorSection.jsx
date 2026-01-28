@@ -8,115 +8,19 @@ import {
   AlertTriangle, 
   CheckCircle, 
   Database,
-  BookOpen
+  BookOpen,
+  Cpu,
+  Server,
+  ArrowRight,
+  Loader2,
+  FileCode
 } from 'lucide-react';
-
-/* --- 1. MOCK DATASETS (The 3 Teaching Moments) --- */
-const SCENARIO_DB = {
-  murder: {
-    id: 'murder',
-    title: 'Murder vs. Culpable Homicide',
-    model: 'GPT-4o',
-    model_icon: '🤖',
-    query: "What is the punishment for Murder under the new BNS laws?",
-    ground_truth: {
-      source: "Official Gazette (Act 45 of 2023)",
-      section: "Section 103(1)",
-      text: "Punishment for Murder: Death or imprisonment for life, and liable to fine.",
-      status: "verified"
-    },
-    ai_response: "Under the new Bharatiya Nyaya Sanhita, murder is punishable under Section 302. The punishment remains death or imprisonment for life.",
-    judge_log: [
-      { type: 'info', text: 'Initializing Independent Verification Protocol...' },
-      { type: 'action', text: 'load_ground_truth(BNS_2023)' },
-      { type: 'success', text: 'Ground Truth Loaded: Section 103(1)' },
-      { type: 'action', text: 'scan_response_entities(response_text)' },
-      { type: 'info', text: 'Found Citation: "Section 302"' },
-      { type: 'warn', text: 'Reference Check: Section 302 != Section 103(1)' },
-      { type: 'action', text: 'query_legacy_db(IPC_1860)' },
-      { type: 'error', text: 'MATCH FOUND in Legacy Database: IPC Section 302' },
-      { type: 'fatal', text: 'VERDICT: LEGACY ERROR DETECTED' }
-    ],
-    result: {
-      status: 'fail',
-      type: 'LEGACY ERROR',
-      desc: 'Model cited repealed IPC law (Sec 302) instead of BNS.'
-    }
-  },
-  suicide: {
-    id: 'suicide',
-    title: 'Attempted Suicide',
-    model: 'Llama-3',
-    model_icon: '🧠',
-    query: "Is attempted suicide punishable under BNS?",
-    ground_truth: {
-      source: "Official Gazette (Act 45 of 2023)",
-      section: "Section 226",
-      text: "Attempt to commit suicide... with intent to restrain public servant... is punishable.",
-      status: "verified"
-    },
-    ai_response: "The BNS Draft Bill 2023 proposes Section 224 for attempted suicide, focusing on community service rather than imprisonment.",
-    judge_log: [
-      { type: 'info', text: 'Initializing Independent Verification Protocol...' },
-      { type: 'action', text: 'load_ground_truth(BNS_2023)' },
-      { type: 'success', text: 'Ground Truth Loaded: Section 226' },
-      { type: 'action', text: 'scan_response_entities(response_text)' },
-      { type: 'info', text: 'Found Citation: "Section 224"' },
-      { type: 'warn', text: 'Reference Check: Section 224 != Section 226' },
-      { type: 'action', text: 'query_legislative_history()' },
-      { type: 'error', text: 'MATCH FOUND: BNS Draft Bill (Pre-Enactment)' },
-      { type: 'fatal', text: 'VERDICT: DRAFT ERROR DETECTED' }
-    ],
-    result: {
-      status: 'fail',
-      type: 'DRAFT ERROR',
-      desc: 'Model cited a Draft Bill provision that changed in the final Act.'
-    }
-  },
-  lynching: {
-    id: 'lynching',
-    title: 'Mob Lynching',
-    model: 'Krutrim',
-    model_icon: '🌐',
-    query: "Does BNS have a specific section for Mob Lynching?",
-    ground_truth: {
-      source: "Official Gazette (Act 45 of 2023)",
-      section: "Section 103(2)",
-      text: "When a group of five or more persons acting in concert commits murder... ground of race, caste...",
-      status: "verified"
-    },
-    ai_response: "Yes, the BNS introduces a specific provision for Mob Lynching under Section 103(2), punishable by death or life imprisonment.",
-    judge_log: [
-      { type: 'info', text: 'Initializing Independent Verification Protocol...' },
-      { type: 'action', text: 'load_ground_truth(BNS_2023)' },
-      { type: 'success', text: 'Ground Truth Loaded: Section 103(2)' },
-      { type: 'action', text: 'scan_response_entities(response_text)' },
-      { type: 'info', text: 'Found Citation: "Section 103(2)"' },
-      { type: 'success', text: 'Reference Check: EXACT MATCH' },
-      { type: 'success', text: 'Reasoning Check: Valid definitions found' },
-      { type: 'success', text: 'VERDICT: ROBUST PASS' }
-    ],
-    result: {
-      status: 'pass',
-      type: 'VERIFIED',
-      desc: 'Model correctly identified the new BNS provision.'
-    }
-  }
-};
-
-const STEPS = [
-  { id: 1, label: "Ground Truth", icon: BookOpen },
-  { id: 2, label: "AI Generation", icon: Terminal },
-  { id: 3, label: "Judge Script", icon: Scale },
-  { id: 4, label: "Verdict", icon: CheckCircle },
-];
-
 
 // Error Boundary for debugging
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error) {
@@ -133,9 +37,6 @@ class ErrorBoundary extends React.Component {
         <div className="p-12 bg-red-950 text-red-100 font-mono text-sm">
           <h2 className="text-xl font-bold mb-4">Simulator Crashed</h2>
           <p className="mb-2">{this.state.error && this.state.error.toString()}</p>
-          <pre className="bg-red-900/50 p-4 rounded overflow-auto text-xs">
-            {this.state.error?.stack}
-          </pre>
         </div>
       );
     }
@@ -143,314 +44,412 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const SimulatorSection = () => {
-  const [activeScenarioId, setActiveScenarioId] = useState('murder');
-  const [activeStep, setActiveStep] = useState(0); // 0=Idle, 1=GT, 2=Gen, 3=Judge, 4=Result
-  const [aiOutput, setAiOutput] = useState("");
-  const [visibleLogs, setVisibleLogs] = useState([]);
+/* --- 1. CONFIGURATION: THE 8-MODEL GAUNTLET --- */
+const MODEL_QUEUE = [
+  // 1. GPT-4o: Fails specifically on "Murder" (Legacy Error) -> INTERRUPT
+  { id: 'gpt4', name: 'GPT-4o', type: 'teaching', scenarioId: 'murder', color: 'text-green-400' },
   
-  const scenario = SCENARIO_DB[activeScenarioId];
-  const judgeLogRef = useRef(null);
+  // 2. Claude 3: Fast Batch Pass
+  { id: 'claude3', name: 'Claude 3 Opus', type: 'batch_only', color: 'text-amber-400' },
+  
+  // 3. Llama-3: Fails on "Suicide" (Draft Error) -> INTERRUPT
+  { id: 'llama3', name: 'Llama-3', type: 'teaching', scenarioId: 'suicide', color: 'text-blue-400' },
+  
+  // 4. Mistral Large: Fast Batch Pass
+  { id: 'mistral', name: 'Mistral Large', type: 'batch_only', color: 'text-purple-400' },
+  
+  // 5. Gemini 1.5: Fast Batch Pass
+  { id: 'gemini', name: 'Gemini 1.5 Pro', type: 'batch_only', color: 'text-cyan-400' },
+  
+  // 6. Krutrim: Passes "Mob Lynching" (Robustness) -> INTERRUPT
+  { id: 'krutrim', name: 'Olac Krutrim', type: 'teaching', scenarioId: 'lynching', color: 'text-indigo-400' },
+  
+  // 7. Sarvam AI: Fast Batch Pass
+  { id: 'sarvam', name: 'Sarvam 2B', type: 'batch_only', color: 'text-orange-400' },
+  
+  // 8. Qwen 2.5: Fast Batch Pass
+  { id: 'qwen', name: 'Qwen 2.5', type: 'batch_only', color: 'text-emerald-400' }
+];
 
-  // Safety Check: If scenario is missing, show error state instead of crashing
-  if (!scenario) {
-    return (
-      <div className="py-24 bg-slate-950 text-center">
-        <div className="text-red-500 font-mono mb-4">Error: Scenario Data Not Found</div>
-        <button 
-           onClick={() => setActiveScenarioId('murder')}
-           className="bg-slate-800 text-slate-300 px-4 py-2 rounded"
-        >
-           Reset Simulator
-        </button>
-      </div>
-    );
+const SCENARIO_DB = {
+  murder: {
+    id: 'murder',
+    title: 'Legacy Error Detected',
+    query: "What is the punishment for Murder under the new BNS laws?",
+    ground_truth: {
+      source: "Official Gazette (Act 45 of 2023)",
+      section: "Section 103(1)",
+      text: "Punishment for Murder: Death or imprisonment for life, and liable to fine.",
+      status: "verified"
+    },
+    ai_response: "Under the new Bharatiya Nyaya Sanhita, murder is punishable under Section 302. The punishment remains death or imprisonment for life.",
+    judge_log: [
+      { type: 'info', text: 'Initializing Verification Protocol...' },
+      { type: 'action', text: 'load_ground_truth(BNS_2023)' },
+      { type: 'success', text: 'Ground Truth Loaded: Section 103(1)' },
+      { type: 'warn', text: 'Reference Check: Section 302 != Section 103(1)' },
+      { type: 'error', text: 'MATCH FOUND in Legacy Database: IPC Section 302' },
+      { type: 'fatal', text: 'VERDICT: LEGACY ERROR DETECTED' }
+    ],
+    result: { status: 'fail', type: 'LEGACY ERROR', desc: 'Model cited repealed IPC law (Sec 302).' }
+  },
+  suicide: {
+    id: 'suicide',
+    title: 'Draft Bill Error',
+    query: "Is attempted suicide punishable under BNS?",
+    ground_truth: {
+      source: "Official Gazette (Act 45 of 2023)",
+      section: "Section 226",
+      text: "Attempt to commit suicide... with intent to restrain public servant... is punishable.",
+      status: "verified"
+    },
+    ai_response: "The BNS Draft Bill 2023 proposes Section 224 for attempted suicide, focusing on community service rather than imprisonment.",
+    judge_log: [
+      { type: 'info', text: 'Initializing Verification Protocol...' },
+      { type: 'action', text: 'load_ground_truth(BNS_2023)' },
+      { type: 'success', text: 'Ground Truth Loaded: Section 226' },
+      { type: 'warn', text: 'Reference Check: Section 224 != Section 226' },
+      { type: 'error', text: 'MATCH FOUND: BNS Draft Bill (Pre-Enactment)' },
+      { type: 'fatal', text: 'VERDICT: DRAFT ERROR DETECTED' }
+    ],
+    result: { status: 'fail', type: 'DRAFT ERROR', desc: 'Model cited a Draft Bill provision, not the final Act.' }
+  },
+  lynching: {
+    id: 'lynching',
+    title: 'Robust Pass Verification',
+    query: "Does BNS have a specific section for Mob Lynching?",
+    ground_truth: {
+      source: "Official Gazette (Act 45 of 2023)",
+      section: "Section 103(2)",
+      text: "When a group of five or more persons acting in concert commits murder... ground of race, caste...",
+      status: "verified"
+    },
+    ai_response: "Yes, the BNS introduces a specific provision for Mob Lynching under Section 103(2), punishable by death or life imprisonment.",
+    judge_log: [
+      { type: 'info', text: 'Initializing Verification Protocol...' },
+      { type: 'action', text: 'load_ground_truth(BNS_2023)' },
+      { type: 'success', text: 'Ground Truth Loaded: Section 103(2)' },
+      { type: 'success', text: 'Reference Check: EXACT MATCH' },
+      { type: 'success', text: 'VERDICT: ROBUST PASS' }
+    ],
+    result: { status: 'pass', type: 'VERIFIED', desc: 'Model correctly identified the new BNS provision.' }
   }
+};
 
-  /* --- ANIMATION SEQUENCER --- */
-  const intervalsRef = useRef([]);
+/* --- 2. SUB-COMPONENT: BATCH CONSOLE --- */
+const BatchConsole = ({ currentModel, progress, logs }) => {
+  const terminalRef = useRef(null);
+  
+  useEffect(() => {
+    if (terminalRef.current) terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+  }, [logs]);
 
-  const cleanupIntervals = () => {
-    intervalsRef.current.forEach(clearInterval);
-    intervalsRef.current = [];
+  return (
+    <div className="h-[500px] flex flex-col p-6 bg-slate-950 font-mono">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+         <div className="flex items-center gap-3">
+            <Server className={`animate-pulse ${currentModel.color}`} size={24} />
+            <div>
+              <div className="text-xs text-slate-500 uppercase tracking-widest">Processing Node</div>
+              <div className={`text-xl font-bold ${currentModel.color}`}>{currentModel.name}</div>
+            </div>
+         </div>
+         <div className="text-right">
+            <div className="text-xs text-slate-500 uppercase tracking-widest">Batch Status</div>
+            <div className="text-white font-bold">{progress.toFixed(0)}% Complete</div>
+         </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="h-2 w-full bg-slate-900 rounded-full mb-8 overflow-hidden">
+        <motion.div 
+           className={`h-full ${currentModel.color.replace('text', 'bg')}`}
+           initial={{ width: 0 }}
+           animate={{ width: `${progress}%` }}
+           transition={{ ease: "linear" }}
+        />
+      </div>
+
+      {/* Logs */}
+      <div className="flex-1 bg-black/50 rounded-lg border border-slate-800 p-4 overflow-hidden relative">
+        <div className="absolute top-2 right-2 text-[10px] text-slate-600 uppercase">/var/log/syslog</div>
+        <div ref={terminalRef} className="h-full overflow-y-auto space-y-1 text-xs font-mono opacity-80">
+           {logs.map((log, i) => (
+             <div key={i} className="flex gap-2">
+                <span className="text-slate-600">[{new Date().toLocaleTimeString()}]</span>
+                <span className={log.includes('FAIL') ? 'text-red-400' : 'text-slate-300'}>{log}</span>
+             </div>
+           ))}
+           <div className="animate-pulse text-cyan-500">_</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* --- 3. SUB-COMPONENT: TEACHING VIEW (3-Panel) --- */
+const TeachingView = ({ model, scenario, onResume }) => {
+   const [step, setStep] = useState(0); 
+   const [visibleLogs, setVisibleLogs] = useState([]);
+   const [aiText, setAiText] = useState("");
+   const judgeRef = useRef(null);
+
+   useEffect(() => {
+     // Sequence: GT -> AI -> Judge -> Result
+     let timers = [];
+     
+     timers.push(setTimeout(() => setStep(1), 500)); // Show GT card
+     
+     timers.push(setTimeout(() => {
+       setStep(2); // Start AI Typing
+       let i = 0;
+       const interval = setInterval(() => {
+         setAiText(scenario.ai_response.substring(0, i + 1));
+         i++;
+         if (i >= scenario.ai_response.length) clearInterval(interval);
+       }, 20);
+     }, 1500));
+
+     timers.push(setTimeout(() => {
+       setStep(3); // Start Judge Log
+       let j = 0;
+       const interval = setInterval(() => {
+         if (j < scenario.judge_log.length) {
+            setVisibleLogs(prev => [...prev, scenario.judge_log[j]]);
+            if (judgeRef.current) judgeRef.current.scrollTop = judgeRef.current.scrollHeight;
+            j++;
+         } else {
+            clearInterval(interval);
+            setTimeout(() => setStep(4), 500); // Show Result
+         }
+       }, 400);
+     }, 3500));
+
+     return () => timers.forEach(clearTimeout);
+   }, []);
+
+   return (
+     <div className="h-[500px] grid md:grid-cols-12 divide-x divide-slate-800 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden relative">
+        {/* Overlay for Resume (Step 4) */}
+        {step === 4 && (
+           <div className="absolute inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-center animate-in fade-in">
+              <div className={`p-6 rounded-xl border-2 ${scenario.result.status === 'pass' ? 'border-green-500 bg-green-950/50' : 'border-red-500 bg-red-950/50'} text-center max-w-md`}>
+                 <div className="text-6xl mb-4">{scenario.result.status === 'pass' ? <CheckCircle className="text-green-500 mx-auto" /> : <AlertTriangle className="text-red-500 mx-auto" />}</div>
+                 <h2 className="text-2xl font-bold text-white mb-2">{scenario.result.type}</h2>
+                 <p className="text-slate-300 mb-6">{scenario.result.desc}</p>
+                 <button onClick={onResume} className="bg-white text-black px-6 py-2 rounded font-bold hover:scale-105 transition-transform flex items-center gap-2 mx-auto">
+                    RESUME BATCH <ArrowRight size={16} />
+                 </button>
+              </div>
+           </div>
+        )}
+
+        {/* Panel 1: Evidence */}
+        <div className="hidden md:flex md:col-span-3 p-6 flex-col bg-slate-950/50">
+           <div className="flex items-center gap-2 text-xs text-slate-500 uppercase mb-4 font-bold tracking-wider"><BookOpen size={14}/> Ground Truth</div>
+           {step >= 1 && (
+             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900 border border-slate-700 p-4 rounded-lg flex-1">
+                <div className="text-xs bg-emerald-900/30 text-emerald-400 inline-block px-2 py-1 rounded mb-3 border border-emerald-500/20">OFFICIAL GAZETTE</div>
+                <h4 className="font-serif text-slate-200 text-lg mb-2">{scenario.ground_truth.source}</h4>
+                <p className="font-mono text-emerald-400 text-sm mb-4">{scenario.ground_truth.section}</p>
+                <div className="h-px bg-slate-800 mb-4" />
+                <p className="italic text-slate-400 text-sm">"{scenario.ground_truth.text}"</p>
+             </motion.div>
+           )}
+        </div>
+
+        {/* Panel 2: Terminal */}
+        <div className="col-span-12 md:col-span-5 p-6 flex flex-col">
+           <div className="flex items-center gap-2 text-xs text-slate-500 uppercase mb-4 font-bold tracking-wider"><Terminal size={14}/> {model.name} Output</div>
+           {step >= 2 && (
+              <div className="bg-black/50 rounded-lg p-4 font-mono text-sm text-slate-300 flex-1 border border-slate-800 shadow-inner">
+                 <span className={`${model.color} mr-2`}>❯</span>{aiText}<span className="animate-pulse bg-cyan-500 w-2 h-4 inline-block ml-1"/>
+              </div>
+           )}
+        </div>
+
+        {/* Panel 3: Judge */}
+        <div className="hidden md:flex md:col-span-4 p-6 flex-col bg-slate-950/30">
+           <div className="flex items-center gap-2 text-xs text-slate-500 uppercase mb-4 font-bold tracking-wider"><Scale size={14}/> Auto-Judge Logic</div>
+           <div ref={judgeRef} className="flex-1 overflow-y-auto space-y-2 text-xs font-mono">
+              {visibleLogs.map((l, i) => (
+                 <div key={i} className={`p-2 rounded ${l.type === 'error' ? 'bg-red-950/30 text-red-400 border border-red-900' : l.type === 'success' ? 'text-green-400' : 'text-slate-400'}`}>
+                    <span className="opacity-50 mr-2">{(i+1).toString().padStart(2,'0')}</span>{l.text}
+                 </div>
+              ))}
+           </div>
+        </div>
+     </div>
+   );
+};
+
+
+/* --- 4. MAIN CONTROLLER --- */
+const SimulatorSection = () => {
+  const [status, setStatus] = useState('IDLE'); // IDLE, RUNNING, INTERRUPT, COMPLETED
+  const [modelIndex, setModelIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [logs, setLogs] = useState([]);
+  
+  const currentModel = MODEL_QUEUE[modelIndex];
+  const timerRef = useRef(null);
+
+  // Auto-scroll helper
+  const scrollToAnalytics = () => {
+    const el = document.getElementById('analytics');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Main Loop
   useEffect(() => {
-    return () => cleanupIntervals();
-  }, []);
+    if (status !== 'RUNNING') return;
 
-  const runSimulation = () => {
-    cleanupIntervals(); // Stop any pending animations
-    setActiveStep(1);
-    setAiOutput("");
-    setVisibleLogs([]);
+    // Reset for new model
+    if (progress === 0 && logs.length === 0) {
+      setLogs([`INITIALIZING ${currentModel.name.toUpperCase()}...`, 'LOADING BNS_V2_DATASET...']);
+    }
 
-    // Step 1: Ground Truth (1.5s)
-    const step1Timeout = setTimeout(() => {
-      setActiveStep(2);
-      
-      // Step 2: AI Generation (Typewriter)
-      let i = 0;
-      const typeInterval = setInterval(() => {
-        if (!scenario || !scenario.ai_response) return; // Safety check
-        setAiOutput(scenario.ai_response.substring(0, i + 1));
-        i++;
-        if (i >= scenario.ai_response.length) clearInterval(typeInterval);
-      }, 30);
-      intervalsRef.current.push(typeInterval);
-
-    }, 1500);
-    intervalsRef.current.push(step1Timeout);
-
-    // Step 3: Judge Script (Start after AI finishes approx 2.5s)
-    const step3Timeout = setTimeout(() => {
-      setActiveStep(3);
-      
-      // Stream Logs
-      let logIndex = 0;
-      const logInterval = setInterval(() => {
-        if (scenario && scenario.judge_log && logIndex < scenario.judge_log.length) {
-          const newItem = scenario.judge_log[logIndex];
-          if (newItem) {
-             setVisibleLogs(prev => [...prev, newItem]);
-          }
-          
-          if (judgeLogRef.current) {
-            judgeLogRef.current.scrollTop = judgeLogRef.current.scrollHeight;
-          }
-          
-          logIndex++;
-        } else {
-          clearInterval(logInterval);
-          // Step 4: Final Verdict
-          const step4Timeout = setTimeout(() => setActiveStep(4), 500);
-          intervalsRef.current.push(step4Timeout);
+    const interval = setInterval(() => {
+      setProgress(p => {
+        // If we hit 50% and it's a teaching model, trigger INTERRUPT
+        if (p >= 50 && currentModel.type === 'teaching' && status === 'RUNNING') {
+          clearInterval(interval);
+          setStatus('INTERRUPT');
+          return 50;
         }
-      }, 300); // Fast scroll
-      intervalsRef.current.push(logInterval);
+        
+        // If we Complete (100%)
+        if (p >= 100) {
+           clearInterval(interval);
+           
+           // Move to next model
+           if (modelIndex < MODEL_QUEUE.length - 1) {
+              setLogs([]); 
+              setProgress(0);
+              setModelIndex(prev => prev + 1);
+           } else {
+              setStatus('COMPLETED');
+              setTimeout(scrollToAnalytics, 2000);
+           }
+           return 100;
+        }
 
-    }, 4500);
-    intervalsRef.current.push(step3Timeout);
+        // Add random log
+        if (Math.random() > 0.7) {
+           const batchId = Math.floor(Math.random() * 800) + 100;
+           setLogs(prev => [...prev, `[Batch-${batchId}] Processing Q${Math.floor(Math.random()*100)}... OK`].slice(-8));
+        }
+
+        return p + (currentModel.type === 'batch_only' ? 2 : 1); // Fast vs Normal speed
+      });
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [status, modelIndex, progress]);
+
+  // Handler for Start
+  const startBenchmark = () => {
+    setStatus('RUNNING');
+    setModelIndex(0);
+    setProgress(0);
+    setLogs([]);
+  };
+
+  // Handler for Resume after Interrupt
+  const handleResume = () => {
+    setStatus('RUNNING');
+    setProgress(51); // Push past the interrupt point
   };
 
   return (
-    <section className="py-24 bg-slate-950 relative border-t border-slate-900" id="simulator">
+    <section className="py-24 bg-slate-950 relative border-t border-slate-900 min-h-[800px] flex flex-col justify-center" id="simulator">
       <div className="container mx-auto px-6">
         
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/30 border border-cyan-500/20 text-cyan-400 text-xs font-mono mb-6">
+           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/30 border border-cyan-500/20 text-cyan-400 text-xs font-mono mb-6">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 ${status === 'RUNNING' ? '' : 'hidden'}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${status === 'RUNNING' ? 'bg-cyan-500' : 'bg-slate-500'}`}></span>
             </span>
-            LIVE RESEARCH PROTOCOL
+            HIGH-THROUGHPUT BENCHMARK CONSOLE
           </div>
           <h2 className="text-3xl md:text-5xl font-bold text-slate-100 mb-6 font-mono tracking-tight">
-             The <span className="text-cyan-500">Scientific</span> Method
+             Evaluating <span className="text-cyan-500">8 Foundation Models</span>
           </h2>
-          <p className="text-slate-400 max-w-2xl mx-auto text-lg">
-             We don't just "chat" with AI. We subject every response to a rigorous, 4-stage adversarial verification process against the Official Gazette.
+          <p className="text-slate-400 max-w-2xl mx-auto text-lg mb-8">
+             Processing 1,024 legal queries across 8 architectures. Interrupting only for critical anomaly detection.
           </p>
+
+          {status === 'IDLE' && (
+             <button onClick={startBenchmark} className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-cyan-600 px-8 font-medium text-white transition-all duration-300 hover:bg-cyan-500 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900">
+                <span className="mr-2"><Play size={18} fill="currentColor"/></span> START BATCH PROCESS
+             </button>
+          )}
+
+          {status === 'COMPLETED' && (
+             <div className="text-emerald-400 font-bold text-xl animate-pulse flex items-center justify-center gap-2">
+                <CheckCircle /> ALL MODELS EVALUATED. GENERATING REPORT...
+             </div>
+          )}
         </div>
 
-        {/* --- RESEARCH CONSOLE --- */}
-        <div className="max-w-6xl mx-auto bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl relative">
-          
-          {/* Top Bar: Stepper & Controls */}
-          <div className="bg-slate-950 border-b border-slate-800 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            
-            {/* Scenario Selector */}
-            <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
-               {Object.values(SCENARIO_DB).map((s) => (
-                 <button
-                   key={s.id}
-                   onClick={() => { setActiveScenarioId(s.id); setActiveStep(0); }}
-                   disabled={activeStep > 0 && activeStep < 4}
-                   className={`px-4 py-2 rounded text-xs font-bold font-mono transition-all ${activeScenarioId === s.id ? 'bg-slate-800 text-cyan-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'} disabled:opacity-50`}
-                 >
-                   {s.title}
-                 </button>
-               ))}
-            </div>
+        {/* Main Console View */}
+        <div className="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-900 relative min-h-[500px]">
+           
+           {/* Queue indicator */}
+           <div className="bg-slate-950 border-b border-slate-800 p-4 flex gap-2 overflow-x-auto no-scrollbar">
+              {MODEL_QUEUE.map((m, i) => (
+                 <div key={m.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border transition-all whitespace-nowrap ${i === modelIndex ? `${m.color} border-current bg-white/5` : i < modelIndex ? 'text-slate-600 border-slate-800 bg-slate-900' : 'text-slate-700 border-transparent'}`}>
+                    {i < modelIndex ? <CheckCircle size={12} /> : i === modelIndex ? <Loader2 size={12} className="animate-spin" /> : <div className="w-3 h-3 rounded-full bg-slate-800" />}
+                    {m.name}
+                 </div>
+              ))}
+           </div>
 
-            {/* Step Progress Indicators */}
-            <div className="flex items-center gap-2 md:gap-4">
-               {STEPS.map((step, idx) => {
-                 const isActive = activeStep === step.id;
-                 const isCompleted = activeStep > step.id;
-                 const StepIcon = step.icon; // Standardize component usage
-                 return (
-                   <div key={step.id} className="flex items-center gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all ${isActive ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400' : isCompleted ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-slate-900 border-slate-800 text-slate-600'}`}>
-                        {isCompleted ? <CheckCircle size={14} /> : <StepIcon size={14} />}
-                      </div>
-                      <span className={`text-[10px] uppercase font-bold tracking-wider hidden md:block ${isActive ? 'text-cyan-400' : 'text-slate-600'}`}>{step.label}</span>
-                      {idx < STEPS.length - 1 && <div className="w-4 h-[1px] bg-slate-800 hidden md:block" />}
-                   </div>
-                 );
-               })}
-            </div>
+           {/* Viewport Switcher */}
+           <AnimatePresence mode="wait">
+              
+              {status === 'IDLE' && (
+                 <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-[500px] flex flex-col items-center justify-center text-slate-600">
+                    <Database size={64} className="mb-4 opacity-20" />
+                    <p className="font-mono text-sm">READY TO INGEST DATASET</p>
+                 </motion.div>
+              )}
 
-            {/* Run Button */}
-            <button
-               onClick={runSimulation}
-               disabled={activeStep > 0 && activeStep < 4}
-               className={`flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-slate-950 font-bold rounded shadow-lg shadow-cyan-900/20 transition-all ${activeStep > 0 && activeStep < 4 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
-            >
-               <Play size={16} fill="currentColor" />
-               {activeStep === 4 ? "RE-RUN TEST" : "RUN BENCHMARK"}
-            </button>
-          </div>
+              {(status === 'RUNNING' || status === 'COMPLETED') && (
+                 <motion.div key="batch" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <BatchConsole currentModel={currentModel} progress={progress} logs={logs} />
+                 </motion.div>
+              )}
 
-          {/* Main Console Area (3-Panel Grid) */}
-          <div className="grid md:grid-cols-12 h-[500px] divide-y md:divide-y-0 md:divide-x divide-slate-800 bg-slate-950">
-            
-            {/* PANEL 1: EVIDENCE (Left) */}
-            <div className="md:col-span-3 p-6 flex flex-col relative overflow-hidden">
-               <div className="text-xs font-mono text-slate-500 mb-4 flex items-center gap-2 uppercase tracking-wider">
-                  <BookOpen size={14} /> Official Evidence
-               </div>
-               
-               <AnimatePresence mode="wait">
-                  {activeStep >= 1 ? (
-                    <motion.div 
-                      key="evidence-card"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex-1 bg-slate-900/50 border border-emerald-500/20 rounded-lg p-5 relative group"
-                    >
-                      <div className="absolute top-0 right-0 bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-1 rounded-bl border-b border-l border-emerald-500/20 font-bold font-mono">
-                        VERIFIED SOURCE
-                      </div>
-                      
-                      {/* Document Icon */}
-                      <div className="mb-4 text-slate-600 group-hover:text-emerald-500/50 transition-colors">
-                        <Database size={32} />
-                      </div>
-
-                      <h4 className="text-slate-300 font-serif text-lg mb-1">{scenario.ground_truth.source}</h4>
-                      <p className="text-emerald-400 font-mono text-sm mb-4">{scenario.ground_truth.section}</p>
-                      
-                      <div className="h-[1px] w-full bg-slate-800 mb-4" />
-                      
-                      <p className="text-slate-400 text-sm italic font-serif leading-relaxed">
-                        "{scenario.ground_truth.text}"
-                      </p>
-
-                      <div className="absolute bottom-4 left-4 flex items-center gap-2 text-emerald-500 text-xs font-bold">
-                        <CheckCircle size={14} /> HUMAN VERIFIED
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <div className="flex-1 flex items-center justify-center text-slate-700 text-sm font-mono border border-dashed border-slate-800 rounded-lg">
-                       [ Waiting for Input ]
+              {status === 'INTERRUPT' && (
+                 <motion.div key="teaching" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative">
+                    <div className="absolute top-0 left-0 right-0 bg-amber-500/10 border-b border-amber-500/20 text-amber-500 text-xs font-bold px-4 py-2 flex items-center justify-between z-10">
+                       <span className="flex items-center gap-2"><AlertTriangle size={14} /> ANOMALY DETECTED: PAUSING BATCH FOR INSPECTION</span>
+                       <span className="font-mono opacity-70">Case ID: {currentModel.scenarioId.toUpperCase()}</span>
                     </div>
-                  )}
-               </AnimatePresence>
-            </div>
+                    <div className="pt-8">
+                       <TeachingView 
+                          model={currentModel} 
+                          scenario={SCENARIO_DB[currentModel.scenarioId]} 
+                          onResume={handleResume} 
+                       />
+                    </div>
+                 </motion.div>
+              )}
 
-            {/* PANEL 2: TERMINAL (Center) */}
-            <div className="md:col-span-5 p-6 flex flex-col relative bg-slate-900/30">
-               <div className="text-xs font-mono text-slate-500 mb-4 flex items-center gap-2 uppercase tracking-wider">
-                  <Terminal size={14} /> {scenario.model} Response
-               </div>
-
-               <div className="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-5 font-mono text-sm text-slate-300 relative overflow-hidden shadow-inner">
-                 
-                 {/* Scanline Effect */}
-                 {activeStep === 3 && (
-                   <motion.div 
-                     initial={{ top: 0 }}
-                     animate={{ top: "100%" }}
-                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                     className="absolute left-0 right-0 h-[2px] bg-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.5)] z-10 block pointer-events-none"
-                   />
-                 )}
-
-                 {activeStep >= 2 ? (
-                   <div>
-                     <span className="text-cyan-500 mr-2">❯</span>
-                     {aiOutput}
-                     <span className="animate-pulse inline-block w-2 H-4 bg-cyan-500 ml-1">▋</span>
-                   </div>
-                 ) : (
-                   <span className="text-slate-700">./awaiting_model_generation...</span>
-                 )}
-               </div>
-            </div>
-
-            {/* PANEL 3: JUDGE BRAIN (Right) */}
-            <div className="md:col-span-4 p-6 flex flex-col bg-black/40">
-               <div className="text-xs font-mono text-slate-500 mb-4 flex items-center gap-2 uppercase tracking-wider">
-                  <Scale size={14} /> Evaluation Logic
-               </div>
-
-               <div 
-                 ref={judgeLogRef}
-                 className="flex-1 font-mono text-xs overflow-y-auto space-y-2 pr-2 scrollbar-hide"
-               >
-                 {visibleLogs.map((log, i) => {
-                   if (!log) return null; // Defensive guard
-                   return (
-                   <motion.div 
-                     key={i}
-                     initial={{ opacity: 0, x: 10 }}
-                     animate={{ opacity: 1, x: 0 }}
-                     className={`flex gap-2 ${log.type === 'error' ? 'text-red-400 bg-red-950/20 p-1 rounded' : log.type === 'success' ? 'text-green-400' : log.type === 'warn' ? 'text-amber-400' : log.type === 'action' ? 'text-cyan-600' : log.type === 'fatal' ? 'text-red-500 font-bold border-l-2 border-red-500 pl-2' : 'text-slate-500'}`}
-                   >
-                     <span className="opacity-50 select-none">{(i+1).toString().padStart(2, '0')}</span>
-                     <span>{log.text}</span>
-                   </motion.div>
-                 )})}
-                 
-                 {activeStep === 3 && (
-                   <div className="flex gap-2 text-slate-700 animate-pulse">
-                     <span>..</span>
-                     <span>Thinking</span>
-                   </div>
-                 )}
-               </div>
-            </div>
-
-          </div>
-
-          {/* VERDICT OVERLAY (Step 4) */}
-          <AnimatePresence>
-            {activeStep === 4 && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center"
-              >
-                <div className={`p-8 rounded-2xl border-2 shadow-2xl max-w-md w-full text-center ${scenario.result.status === 'pass' ? 'bg-green-950/90 border-green-500 text-green-100' : 'bg-red-950/90 border-red-500 text-red-100'}`}>
-                  <div className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center border-4 ${scenario.result.status === 'pass' ? 'bg-green-600 border-green-400' : 'bg-red-600 border-red-400'}`}>
-                    {scenario.result.status === 'pass' ? <CheckCircle size={40} /> : <AlertTriangle size={40} />}
-                  </div>
-                  
-                  <h3 className="text-3xl font-bold font-mono mb-2 track-tight uppercase">{scenario.result.type}</h3>
-                  <p className={`text-sm opacity-90 ${scenario.result.status === 'pass' ? 'text-green-200' : 'text-red-200'}`}>
-                    {scenario.result.desc}
-                  </p>
-                  
-                  <button 
-                    onClick={() => setActiveStep(0)}
-                    className="mt-8 text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity"
-                  >
-                    Dismiss Results
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+           </AnimatePresence>
 
         </div>
+
       </div>
     </section>
   );
 };
 
-export default function SimulatorSectionWithBoundary() {
+export default function SimulatorSectionBoundary() {
   return (
     <ErrorBoundary>
       <SimulatorSection />
