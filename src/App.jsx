@@ -168,7 +168,7 @@ function App() {
             <ProblemCard 
               icon={Skull}
               color="red"
-              title="The Zombie Error"
+              title="The Legacy Error"
               desc="Citing dead laws as active provisions. The model hallucinates that repealed acts are still enforceable."
               example="Claude 3 cites 'Sedition (124A)' as a valid charge, unaware that BNS has completely repealed and replaced it with 'Treason'."
             />

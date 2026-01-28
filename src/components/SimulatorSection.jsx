@@ -17,7 +17,7 @@ const SCENARIO_DB = {
         rubric: [
           { criteria: "Parametric Inertia Check", status: "pass", note: "Correctly switched to BNS context" },
           { criteria: "Citation Accuracy", status: "pass", note: "Identified Section 103(1)" },
-          { criteria: "Zombie Law Detection", status: "pass", note: "No repealed IPC citations" },
+          { criteria: "Legacy Law Detection", status: "pass", note: "No repealed IPC citations" },
           { criteria: "Reasoning Validity", status: "pass", note: "Accurately noted replacement of Sec 302" }
         ]
       },
