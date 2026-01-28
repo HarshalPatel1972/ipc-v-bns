@@ -843,7 +843,9 @@ const SimulatorSection = () => {
                             <Gavel size={12} /> Verification Protocols
                         </div>
                         <div className="space-y-3">
-                            {gradingSteps.map((step, idx) => (
+                            {gradingSteps.map((step, idx) => {
+                                if (!step) return null;
+                                return (
                                 <motion.div 
                                     key={idx}
                                     initial={{ opacity: 0, x: -10 }}
@@ -860,7 +862,7 @@ const SimulatorSection = () => {
                                         // {step.note}
                                     </div>
                                 </motion.div>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 )}
