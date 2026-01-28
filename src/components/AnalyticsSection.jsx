@@ -71,25 +71,27 @@ const AnalyticsSection = () => {
              </h3>
              
              {/* Custom Bar Chart */}
-             <div className="flex-1 flex items-end justify-around pb-8 border-b border-slate-700/50 relative">
+             <div className="flex-1 flex items-end justify-around pb-8 border-b border-slate-700/50 relative gap-2">
                 {[
                   { label: 'GPT-4', height: '15%', color: 'bg-green-500', error: '15%' },
-                  { label: 'Llama-3', height: '45%', color: 'bg-red-500', error: '45%' },
+                  { label: 'Claude 3', height: '12%', color: 'bg-green-400', error: '12%' },
+                  { label: 'Gemini 1.5', height: '18%', color: 'bg-yellow-400', error: '18%' },
                   { label: 'Krutrim', height: '25%', color: 'bg-yellow-500', error: '25%' },
+                  { label: 'Llama-3', height: '45%', color: 'bg-red-500', error: '45%' },
                 ].map((bar, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-2 w-1/4 h-full justify-end group">
-                    <div className="text-xs text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div key={idx} className="flex flex-col items-center gap-2 flex-1 h-full justify-end group">
+                    <div className="text-[10px] text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                       {bar.error} Error
                     </div>
                     <motion.div 
                       initial={{ height: 0 }}
                       whileInView={{ height: bar.height }}
-                      transition={{ duration: 1, delay: 0.2 + (idx * 0.2), ease: "circOut" }}
-                      className={`w-full max-w-[60px] ${bar.color} rounded-t-md opacity-80 hover:opacity-100 transition-opacity relative`}
+                      transition={{ duration: 1, delay: 0.2 + (idx * 0.1), ease: "circOut" }}
+                      className={`w-full max-w-[40px] ${bar.color} rounded-t-md opacity-80 hover:opacity-100 transition-opacity relative`}
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-white/30" />
                     </motion.div>
-                    <span className="font-mono text-xs text-slate-400 font-bold">{bar.label}</span>
+                    <span className="font-mono text-[10px] text-slate-400 font-bold truncate w-full text-center">{bar.label}</span>
                   </div>
                 ))}
              </div>
