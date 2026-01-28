@@ -33,6 +33,18 @@ const SCENARIO_DB = {
            { criteria: "Reasoning Validity", status: "pass", note: "Accurately noted replacement of Sec 302" }
         ]
       },
+      gemini15: {
+        text: "Murder is now covered under Section 103(1) of the BNS. It prescribes death or imprisonment for life as punishment. The classic Section 302 is no longer applicable.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true,
+        rubric: [
+           { criteria: "Parametric Inertia Check", status: "pass", note: "Correctly switched to BNS context" },
+           { criteria: "Citation Accuracy", status: "pass", note: "Identified Section 103(1)" },
+           { criteria: "Zombie Law Detection", status: "pass", note: "No repealed IPC citations" },
+           { criteria: "Reasoning Validity", status: "pass", note: "Accurately noted replacement of Sec 302" }
+        ]
+      },
       llama3: { 
         text: "According to the Indian Penal Code (IPC), Murder is defined under Section 300 and punishable under Section 302 with death or life imprisonment. This is the primary law governing homicide in India.", 
         verdict: "FAIL (ZOMBIE)", 
@@ -89,6 +101,18 @@ const SCENARIO_DB = {
            { criteria: "Reasoning Validity", status: "pass", note: "Correct terminology" }
         ]
       },
+      gemini15: {
+        text: "The concept of Sedition as known under IPC 124A has been removed. The BNS introduces Section 152 which covers acts endangering sovereignty, but with stricter safeguards.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true,
+        rubric: [
+           { criteria: "Parametric Inertia Check", status: "pass", note: "Acknowledged repeal of 124A" },
+           { criteria: "Citation Accuracy", status: "pass", note: "Correctly cited Section 152" },
+           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Reasoning Validity", status: "pass", note: "Correct terminology" }
+        ]
+      },
       llama3: { 
         text: "Yes, Section 124A of the IPC criminalizes Sedition. The Supreme Court has put it in abeyance, but it remains part of the statute book until officially removed by Parliament.", 
         verdict: "FAIL (ZOMBIE)", 
@@ -138,6 +162,18 @@ const SCENARIO_DB = {
         verdict: "PASS",
         score: 3,
         search_triggered: false,
+        rubric: [
+           { criteria: "Parametric Inertia Check", status: "pass", note: "Found new BNS provision" },
+           { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 103(2)" },
+           { criteria: "Zombie Law Detection", status: "pass", note: "No IPC fallback" },
+           { criteria: "Reasoning Validity", status: "pass", note: "Correct definition" }
+        ]
+      },
+      gemini15: {
+        text: "BNS Section 103(2) specifically deals with murder by a group of five or more persons (Mob Lynching). It is punishable with death or life imprisonment.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true,
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Found new BNS provision" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 103(2)" },
@@ -201,6 +237,18 @@ const SCENARIO_DB = {
            { criteria: "Reasoning Validity", status: "pass", note: "Correct logic" }
         ]
       },
+      gemini15: {
+        text: "Yes, BNS introduces Snatching as a new offense under Section 304. This fills a long-standing gap in the IPC where snatching wasn't explicitly defined.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: true,
+        rubric: [
+           { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new classification" },
+           { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 304" },
+           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Reasoning Validity", status: "pass", note: "Correct logic" }
+        ]
+      },
       llama3: {
         text: "Snatching is a form of theft defined under Section 378 of the Indian Penal Code. It is punishable under Section 379.",
         verdict: "FAIL (ZOMBIE)",
@@ -253,6 +301,18 @@ const SCENARIO_DB = {
         rubric: [
            { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new BNS feature" },
            { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 356" },
+           { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
+           { criteria: "Reasoning Validity", status: "pass", note: "Correct reasoning" }
+        ]
+      },
+      gemini15: {
+        text: "Yes, Community Service is now a valid punishment for Defamation under Section 356(2) of the Bharatiya Nyaya Sanhita.",
+        verdict: "PASS",
+        score: 3,
+        search_triggered: false,
+        rubric: [
+           { criteria: "Parametric Inertia Check", status: "pass", note: "Identified new BNS feature" },
+           { criteria: "Citation Accuracy", status: "pass", note: "Cited Section 356(2)" },
            { criteria: "Zombie Law Detection", status: "pass", note: "No hallucination" },
            { criteria: "Reasoning Validity", status: "pass", note: "Correct reasoning" }
         ]
@@ -431,6 +491,64 @@ const MODELS = [
 
 const SCENARIOS = Object.values(SCENARIO_DB);
 
+const CustomDropdown = ({ label, options, selectedId, onSelect, disabled }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedItem = options.find(o => o.id === selectedId);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="mb-6" ref={dropdownRef}>
+      <label className="block text-slate-500 text-xs font-mono mb-2 uppercase">{label}</label>
+      <div className="relative">
+        <button
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          className={`w-full bg-slate-950 border ${isOpen ? 'border-cyan-500 ring-1 ring-cyan-500' : 'border-slate-700'} text-slate-200 rounded px-4 py-3 flex items-center justify-between transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-slate-600'}`}
+          disabled={disabled}
+        >
+          <div className="flex items-center gap-3">
+             {selectedItem?.icon && <selectedItem.icon size={18} className="text-cyan-500" />}
+             <span className="font-mono text-sm truncate max-w-[200px]">{selectedItem?.name || selectedItem?.title}</span>
+          </div>
+          <ChevronDown size={16} className={`text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-full left-0 w-full z-50 bg-slate-900 border border-slate-700 rounded-b mt-1 shadow-2xl max-h-64 overflow-y-auto"
+            >
+              {options.map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => { onSelect(opt.id); setIsOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 text-left text-sm text-slate-300 border-b border-slate-800/50 last:border-0 transition-colors"
+                >
+                  {opt.icon && <opt.icon size={16} className={opt.id === selectedId ? "text-cyan-400" : "text-slate-500"} />}
+                  <span className={opt.id === selectedId ? "text-cyan-400 font-bold" : ""}>{opt.name || opt.title}</span>
+                  {opt.id === selectedId && <Check size={14} className="ml-auto text-cyan-500" />}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
 const SimulatorSection = () => {
   /* Interactive Logic */
   const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
@@ -576,41 +694,23 @@ const SimulatorSection = () => {
                    <h3 className="font-bold text-slate-200 uppercase tracking-wider text-sm">Control Deck</h3>
                 </div>
 
-                {/* Dropdown 1: Model */}
-                <div className="mb-6">
-                  <label className="block text-slate-500 text-xs font-mono mb-2 uppercase">Target Model Layer</label>
-                  <div className="relative">
-                    <select 
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                      disabled={isRunning}
-                      className="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded px-4 py-3 appearance-none focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-mono text-sm"
-                    >
-                      {MODELS.map(m => (
-                        <option key={m.id} value={m.id}>{m.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={16} />
-                  </div>
-                </div>
+                {/* Custom Dropdown 1: Model */}
+                <CustomDropdown 
+                    label="Target Model Layer"
+                    options={MODELS}
+                    selectedId={selectedModel}
+                    onSelect={setSelectedModel}
+                    disabled={isRunning}
+                />
 
-                {/* Dropdown 2: Scenario */}
-                <div className="mb-8">
-                  <label className="block text-slate-500 text-xs font-mono mb-2 uppercase">Test Vector (Scenario)</label>
-                  <div className="relative">
-                    <select 
-                      value={selectedScenario}
-                      onChange={(e) => setSelectedScenario(e.target.value)}
-                      disabled={isRunning}
-                      className="w-full bg-slate-950 border border-slate-700 text-slate-200 rounded px-4 py-3 appearance-none focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-mono text-sm"
-                    >
-                      {SCENARIOS.map(s => (
-                        <option key={s.id} value={s.id}>{s.title}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={16} />
-                  </div>
-                </div>
+                {/* Custom Dropdown 2: Scenario */}
+                <CustomDropdown 
+                    label="Test Vector (Scenario)"
+                    options={SCENARIOS}
+                    selectedId={selectedScenario}
+                    onSelect={setSelectedScenario}
+                    disabled={isRunning}
+                />
               </div>
 
               {/* Big Execute Button */}
